@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estación Bilingüe</title>
+
+<!-- Meta tags para que el navegador trate la reproducción como una sesión
+     de medios real (controles en pantalla de bloqueo, menor probabilidad
+     de que se corte al apagar la pantalla) y para poder instalarla como
+     app en el móvil, lo que mejora mucho la fiabilidad en segundo plano. -->
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Bilingüe">
+<meta name="theme-color" content="#25333c">
+<link rel="manifest" id="manifestLink">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#25333c;
+  --panel:#1d2830;
+  --panel-2:#2f4049;
+  --ink:#f3eee3;
+  --ink-dim:#9fb2ba;
+  --ink-faint:#6d818a;
+  --line:#3d505a;
+  --es:#e2483c;
+  --es-dim:#5a2e29;
+  --de:#3fa38d;
+  --de-dim:#204540;
+  --zh:#d98a4f;
+  --zh-dim:#5a3a20;
+  --amber:#eaa23a;
+  --radius:14px;
+  --font-ui:'Space Grotesk',sans-serif;
+  --font-voice:'Fraunces',serif;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--font-ui);
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  padding:32px 16px 64px;
+}
+.app{width:100%;max-width:760px;}
+
+/* Pantalla de selección de idioma */
+.gate{
+  width:100%;max-width:760px;min-height:70vh;
+  display:flex;align-items:center;justify-content:center;
+}
+.gate-inner{text-align:center;width:100%;}
+.gate-inner h1{font-size:30px;font-weight:600;margin:0 0 6px;}
+.gate-inner .tagline{color:var(--ink-dim);font-size:14px;margin:0 0 40px;}
+.gate-buttons{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;}
+.gate-btn{
+  font-family:var(--font-ui);width:200px;padding:32px 20px;border-radius:18px;
+  background:var(--panel);border:1px solid var(--line);color:var(--ink);
+  cursor:pointer;font-size:22px;font-weight:600;line-height:1.4;transition:transform 0.12s, border-color 0.12s;
+}
+.gate-btn:hover{transform:translateY(-3px);}
+.gate-btn span{display:block;font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:1px;margin-top:6px;}
+.gate-btn.zh{border-color:var(--zh);color:var(--zh);}
+.gate-btn.zh:hover{background:var(--zh-dim);}
+.gate-btn.de{border-color:var(--de);color:var(--de);}
+.gate-btn.de:hover{background:var(--de-dim);}
+
+header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:8px;}
+h1{font-size:26px;font-weight:600;margin:0;letter-spacing:0.2px;}
+.tagline{color:var(--ink-dim);font-size:13px;margin:2px 0 0;}
+.section-badge{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;}
+.section-badge.zh{background:var(--zh-dim);color:#f0c39a;}
+.section-badge.de{background:var(--de-dim);color:#9adfcd;}
+.header-right{display:flex;align-items:center;gap:10px;}
+.card{background:var(--panel);border-radius:var(--radius);padding:20px 22px;margin-bottom:18px;border:1px solid var(--line);}
+label{font-size:12px;color:var(--ink-dim);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;}
+select,input[type=text],textarea{
+  width:100%;background:var(--panel-2);border:1px solid var(--line);color:var(--ink);
+  border-radius:8px;padding:9px 11px;font-family:var(--font-ui);font-size:14px;
+}
+textarea{resize:vertical;min-height:90px;font-family:var(--font-ui);line-height:1.5;}
+select:focus,input:focus,textarea:focus{outline:2px solid var(--amber);outline-offset:1px;}
+.row{display:flex;gap:12px;flex-wrap:wrap;}
+.row > div{flex:1;min-width:140px;}
+button{
+  font-family:var(--font-ui);background:var(--panel-2);color:var(--ink);border:1px solid var(--line);
+  border-radius:8px;padding:9px 16px;font-size:13px;cursor:pointer;font-weight:500;
+}
+button:hover{background:var(--line);}
+button:active{transform:scale(0.98);}
+button.primary{background:var(--amber);color:#2a1c05;border-color:var(--amber);}
+button.primary:hover{background:#f3b358;}
+button.ghost{background:transparent;}
+button:disabled{opacity:0.4;cursor:default;}
+.top-controls{display:flex;gap:10px;align-items:flex-end;margin-bottom:6px;flex-wrap:wrap;}
+.empty{color:var(--ink-dim);font-size:14px;text-align:center;padding:30px 10px;}
+.player{text-align:center;padding:34px 22px 26px;}
+.dial{position:relative;width:180px;height:180px;margin:0 auto 22px;}
+.dial svg{width:100%;height:100%;transform:rotate(-90deg);}
+.dial-track{fill:none;stroke:var(--panel-2);stroke-width:8;}
+.dial-progress{fill:none;stroke:var(--amber);stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset 0.15s linear;}
+.dial-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.dial-lang{font-size:12px;letter-spacing:2px;font-weight:600;padding:4px 10px;border-radius:20px;margin-bottom:6px;}
+.dial-lang.es{background:var(--es-dim);color:#f4a99f;}
+.dial-lang.de{background:var(--de-dim);color:#9adfcd;}
+.dial-lang.zh{background:var(--zh-dim);color:#f0c39a;}
+.dial-lang.idle{background:var(--panel-2);color:var(--ink-faint);}
+.dial-count{font-size:26px;font-weight:600;color:var(--ink);}
+.phrase{font-family:var(--font-voice);font-size:24px;line-height:1.35;min-height:64px;margin:0 0 4px;padding:0 8px;}
+.phrase.hidden-text{color:var(--ink-faint);font-style:italic;}
+.progress-index{color:var(--ink-dim);font-size:13px;margin-bottom:20px;}
+.controls-main{display:flex;justify-content:center;align-items:center;gap:14px;margin-bottom:22px;}
+.controls-main button{width:44px;height:44px;border-radius:50%;font-size:16px;display:flex;align-items:center;justify-content:center;padding:0;}
+.controls-main button.play{width:58px;height:58px;font-size:20px;}
+.sliders{display:flex;gap:24px;justify-content:center;flex-wrap:wrap;text-align:left;max-width:420px;margin:0 auto;}
+.slider-group{font-size:12px;color:var(--ink-dim);}
+.slider-group input{width:140px;vertical-align:middle;}
+.toggles{display:flex;justify-content:center;gap:10px;margin-top:18px;flex-wrap:wrap;}
+.toggles button.active{border-color:var(--amber);color:var(--amber);}
+.list-header{display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none;}
+.list-header h3{font-size:14px;font-weight:600;margin:0;color:var(--ink-dim);text-transform:uppercase;letter-spacing:0.5px;}
+.item-row{display:flex;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);}
+.item-row:last-child{border-bottom:none;}
+.item-row .txt{flex:1;font-family:var(--font-voice);font-size:15px;}
+.item-row .txt.tgt{color:var(--ink-dim);}
+.item-row.playing{background:rgba(234,162,58,0.08);border-radius:6px;}
+.item-row button{padding:4px 8px;font-size:12px;}
+.audio-badge{font-size:10px;padding:2px 6px;border-radius:10px;background:var(--de-dim);color:#9adfcd;white-space:nowrap;}
+.bulk-box{margin-top:14px;}
+.bulk-box p{font-size:12px;color:var(--ink-faint);margin:6px 0 8px;}
+.small-note{font-size:12px;color:var(--ink-faint);margin-top:10px;}
+.new-form{display:none;}
+.new-form.open{display:block;margin-top:14px;padding-top:14px;border-top:1px solid var(--line);}
+.file-label{display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:7px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;cursor:pointer;}
+.file-label:hover{background:var(--line);}
+.file-label input{display:none;}
+.audio-field{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.audio-field .fname{font-size:11px;color:var(--ink-dim);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.err{color:var(--es);font-size:12px;margin-top:6px;}
+.sync-note{font-size:11px;color:var(--ink-faint);text-align:center;margin-top:-10px;margin-bottom:18px;}
+.sync-note.error{color:var(--es);}
+
+/* Selector de cajón: Vocabulario / Frases, dentro de cada idioma */
+.category-tabs{display:flex;gap:8px;margin-bottom:18px;}
+.cat-tab{flex:1;padding:11px 14px;border-radius:10px;font-size:13px;font-weight:600;}
+.cat-tab.active{background:var(--amber);color:#2a1c05;border-color:var(--amber);}
+</style>
+</head>
+<body>
+
+<div class="gate" id="langGate">
+  <div class="gate-inner">
+    <h1>Estación Bilingüe</h1>
+    <p class="tagline">¿Qué idioma quieres practicar hoy?</p>
+    <div class="gate-buttons">
+      <button class="gate-btn zh" data-lang="zh">中文<span>Chino</span></button>
+      <button class="gate-btn de" data-lang="de">Deutsch<span>Alemán</span></button>
+    </div>
+  </div>
+</div>
+
+<div class="app" id="appRoot" style="display:none;">
+  <header>
+    <div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <h1>Estación Bilingüe</h1>
+        <span class="section-badge" id="sectionBadge"></span>
+      </div>
+      <p class="tagline" id="mainTagline">Escucha, silencio, traducción — a tu ritmo</p>
+    </div>
+    <div class="header-right">
+      <button id="backToGateBtn" class="ghost">← Cambiar idioma</button>
+    </div>
+  </header>
+
+  <div class="category-tabs" id="categoryTabs">
+    <button class="cat-tab" data-cat="frases">📝 Frases</button>
+    <button class="cat-tab" data-cat="vocabulario">🗂️ Vocabulario</button>
+  </div>
+
+  <p class="sync-note" id="syncNote">Conectando con la nube compartida…</p>
+
+  <div class="card">
+    <div class="top-controls">
+      <div style="flex:2;min-width:180px;">
+        <label for="playlistSelect">Lista</label>
+        <select id="playlistSelect"></select>
+      </div>
+      <button id="newListBtn">+ Nueva lista</button>
+      <button id="renameListBtn" class="ghost">Renombrar lista</button>
+      <button id="deleteListBtn" class="ghost">Eliminar lista</button>
+    </div>
+    <div class="new-form" id="newForm">
+      <div class="row">
+        <div>
+          <label for="newName">Nombre</label>
+          <input type="text" id="newName" placeholder="Frases básicas">
+        </div>
+        <div>
+          <label for="newSource">Idioma 1 (se escucha primero)</label>
+          <select id="newSource"></select>
+        </div>
+        <div>
+          <label for="newTarget">Idioma 2 (traducción)</label>
+          <select id="newTarget"></select>
+        </div>
+      </div>
+      <div class="row" style="margin-top:12px;">
+        <button id="createListBtn" class="primary">Crear lista</button>
+        <button id="cancelNewBtn" class="ghost">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="emptyState" class="card empty" style="display:none;">
+    Todavía no tienes ninguna lista en esta sección. Crea la primera con "+ Nueva lista".
+  </div>
+
+  <div id="playerCard" class="card player" style="display:none;">
+    <div class="dial">
+      <svg viewBox="0 0 100 100">
+        <circle class="dial-track" cx="50" cy="50" r="42"></circle>
+        <circle class="dial-progress" id="dialProgress" cx="50" cy="50" r="42" stroke-dasharray="264" stroke-dashoffset="264"></circle>
+      </svg>
+      <div class="dial-center">
+        <span class="dial-lang idle" id="dialLang">—</span>
+        <span class="dial-count" id="dialCount"></span>
+      </div>
+    </div>
+    <p class="phrase" id="phraseText">Pulsa reproducir para empezar</p>
+    <p class="progress-index" id="progressIndex"></p>
+    <div class="controls-main">
+      <button id="prevBtn" title="Anterior">⏮</button>
+      <button id="playBtn" class="play" title="Reproducir">▶</button>
+      <button id="nextBtn" title="Siguiente">⏭</button>
+    </div>
+    <div class="sliders">
+      <div class="slider-group">
+        Silencio entre frases: <b id="pauseOut">3</b>s<br>
+        <input type="range" id="pauseSlider" min="1" max="8" step="1" value="3">
+      </div>
+      <div class="slider-group">
+        Velocidad (solo voz sintética): <b id="rateOut">1.0</b>x<br>
+        <input type="range" id="rateSlider" min="0.6" max="1.4" step="0.1" value="1">
+      </div>
+    </div>
+    <div class="toggles">
+      <button id="orderToggle">Orden: 1 → 2</button>
+      <button id="loopToggle">Repetir lista</button>
+      <button id="hideToggle">Ocultar texto</button>
+    </div>
+    <p class="small-note" id="backgroundNote">
+      🔒 Para que siga sonando con la pantalla apagada: usa frases con audio propio (no voz sintética) — la voz sintética se corta al bloquear el móvil. En iPhone, para más fiabilidad, añade esta página a la pantalla de inicio (Compartir → Añadir a pantalla de inicio) y ábrela desde ahí.
+    </p>
+  </div>
+
+  <div id="listCard" class="card" style="display:none;">
+    <div class="list-header" id="listHeader">
+      <h3 id="listHeaderTitle">Frases de esta lista</h3>
+      <span id="listToggleIcon">▾</span>
+    </div>
+    <div id="listBody" style="margin-top:12px;">
+      <div id="itemsContainer"></div>
+
+      <div class="row" style="margin-top:14px;">
+        <div style="flex:2;">
+          <input type="text" id="srcInput" placeholder="Frase en idioma 1">
+        </div>
+        <div style="flex:2;">
+          <input type="text" id="tgtInput" placeholder="Traducción en idioma 2">
+        </div>
+      </div>
+      <div class="row" style="margin-top:8px;">
+        <label class="file-label">
+          🎵 Audio idioma 1 <span class="fname" id="srcAudioName"></span>
+          <input type="file" id="srcAudioInput" accept="audio/*">
+        </label>
+        <label class="file-label">
+          🎵 Audio idioma 2 <span class="fname" id="tgtAudioName"></span>
+          <input type="file" id="tgtAudioInput" accept="audio/*">
+        </label>
+        <button id="addItemBtn">Añadir frase</button>
+      </div>
+      <p class="err" id="addItemErr" style="display:none;"></p>
+
+      <div class="bulk-box">
+        <p id="bulkHint">O importa varias frases de golpe, una por línea, con formato "idioma 1 = idioma 2" (sirve para chino: pega el texto sin tener que escribirlo tú):</p>
+        <textarea id="bulkInput" placeholder="Guten Morgen = Buenos días
+早上好 = Buenos días"></textarea>
+        <div class="row" style="margin-top:8px;">
+          <button id="bulkAddBtn">Importar líneas pegadas</button>
+          <label class="file-label">
+            📄 Importar archivo (.txt/.csv)
+            <input type="file" id="fileImportInput" accept=".txt,.csv,text/plain">
+          </label>
+        </div>
+        <p class="small-note">El audio no se puede importar en lote por ahora — solo frase por frase, arriba.</p>
+      </div>
+      <p class="small-note" id="voiceNote"></p>
+      <p class="small-note" id="storageNote"></p>
+    </div>
+  </div>
+</div>
+
+<!-- Elementos de audio persistentes: uno para el contenido de las frases y
+     otro que mantiene viva la sesión de audio del navegador (evita que el
+     sistema pause la reproducción/los temporizadores al apagar la pantalla).
+     No se crean nuevos <audio> sobre la marcha para no perder el "media
+     session" que el sistema operativo asocia a la pestaña. -->
+<audio id="mainAudio" playsinline webkit-playsinline preload="auto"></audio>
+<audio id="keepAliveAudio" playsinline webkit-playsinline preload="auto" loop></audio>
+
+<!-- Firebase: almacenamiento compartido en la nube. Sustituye al guardado local
+     del navegador para que todos los dispositivos vean las mismas listas. -->
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-database-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyC4_R-to8t5XUUb8YLNkAM3KXy_egKGo7E",
+  authDomain: "chinese-station-f2bc2.firebaseapp.com",
+  databaseURL: "https://chinese-station-f2bc2-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "chinese-station-f2bc2",
+  storageBucket: "chinese-station-f2bc2.firebasestorage.app",
+  messagingSenderId: "440692893998",
+  appId: "1:440692893998:web:62e057009f3641318df2bf"
+};
+
+let fbDb = null;
+try{
+  firebase.initializeApp(firebaseConfig);
+  fbDb = firebase.database();
+}catch(e){
+  console.error('No se pudo conectar con Firebase', e);
+}
+
+// Todas las listas y audios se guardan bajo este nodo compartido de la base
+// de datos, así cualquier dispositivo que abra la app ve exactamente lo mismo.
+window.storage = {
+  async get(key, shared){
+    if(!fbDb) throw new Error('Sin conexión a la nube');
+    const snap = await fbDb.ref(key).once('value');
+    if(!snap.exists()) throw new Error('not found');
+    return {key, value: snap.val(), shared: !!shared};
+  },
+  async set(key, value, shared){
+    if(!fbDb) throw new Error('Sin conexión a la nube');
+    await fbDb.ref(key).set(value);
+    return {key, value, shared: !!shared};
+  },
+  async delete(key, shared){
+    if(!fbDb) throw new Error('Sin conexión a la nube');
+    await fbDb.ref(key).remove();
+    return {key, deleted: true, shared: !!shared};
+  },
+  async list(prefix, shared){
+    if(!fbDb) throw new Error('Sin conexión a la nube');
+    const snap = await fbDb.ref().once('value');
+    const all = snap.exists() ? Object.keys(snap.val()) : [];
+    const keys = prefix ? all.filter(k => k.startsWith(prefix)) : all;
+    return {keys, prefix, shared: !!shared};
+  }
+};
+
+(function checkConnection(){
+  const note = document.getElementById('syncNote');
+  if(!fbDb){
+    note.textContent = 'No se pudo conectar con la nube compartida. Los cambios no se guardarán.';
+    note.classList.add('error');
+    return;
+  }
+  fbDb.ref('.info/connected').on('value', snap => {
+    if(snap.val() === true){
+      note.textContent = 'Conectado — las listas se sincronizan con la nube compartida.';
+      note.classList.remove('error');
+      setTimeout(() => { note.style.display = 'none'; }, 2500);
+    } else {
+      note.style.display = 'block';
+      note.textContent = 'Sin conexión con la nube. Comprueba tu internet.';
+      note.classList.add('error');
+    }
+  });
+})();
+
+// Manifest generado en memoria (permite instalar la app en la pantalla de
+// inicio de Android/Chrome sin necesidad de subir un archivo aparte a Netlify).
+(function setupManifest(){
+  try{
+    const manifest = {
+      name: 'Estación Bilingüe',
+      short_name: 'Bilingüe',
+      start_url: '.',
+      display: 'standalone',
+      background_color: '#25333c',
+      theme_color: '#25333c',
+      icons: []
+    };
+    const blob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
+    const link = document.getElementById('manifestLink');
+    if(link) link.setAttribute('href', URL.createObjectURL(blob));
+  }catch(e){}
+})();
+
+const LANGS = {
+  es: {label:'Español', code:'es-ES'},
+  de: {label:'Deutsch', code:'de-DE'},
+  zh: {label:'中文', code:'zh-CN'}
+};
+const SECTION_LABEL = {zh:'Chino', de:'Alemán'};
+const CATEGORY_LABEL = {frases:'Frases', vocabulario:'Vocabulario'};
+
+// Tono casi inaudible (2s, en bucle) que se reproduce mientras la lista está
+// en marcha. Mantiene la pestaña "sonando" de forma continua, lo cual es lo
+// que hace que el sistema operativo no suspenda los temporizadores ni corte
+// la sesión de audio en segundo plano al apagar la pantalla.
+const KEEPALIVE_AUDIO_DATA_URI = 'data:audio/wav;base64,UklGRiR9AABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQB9AAAAAAIABQAGAAcABwAHAAUAAgAAAP7//P/6//n/+f/5//v//f8AAAIABAAGAAcABwAHAAUAAwAAAP///P/6//n/+f/5//v//f///wEABAAGAAcABwAHAAYAAwABAP///P/6//n/+P/5//r//P///wEAAwAGAAcABwAHAAYABAABAP///f/7//n/+f/5//r//P///wAAAwAFAAcABwAHAAYABAACAAAA/f/7//n/+f/5//r//P/+/wAAAgAFAAcABwAHAAYABQACAAAA/v/7//r/+f/5//n/+//+/wAAAgAEAAYABwAHAAcABQADAAAA/v/8//r/+f/5//n/+//9/wAAAQAEAAYABwAHAAcABQADAAEA///8//r/+f/5//n/+v/9////AQAEAAYABwAIAAcABgAEAAEA///9//r/+f/5//n/+v/8////AQADAAUABwAHAAcABgAEAAEAAAD9//v/+f/5//n/+v/8//7/AAADAAUABwAHAAcABgAEAAIAAAD+//v/+f/5//n/+v/7//7/AAACAAUABgAHAAcABwAFAAIAAAD+//z/+v/5//n/+f/7//3/AAACAAQABgAHAAcABwAFAAMAAAD///z/+v/5//n/+f/7//3///8BAAQABgAHAAcABwAGAAMAAQD///z/+v/5//j/+f/6//z///8BAAMABgAHAAcABwAGAAQAAQD///3/+//5//n/+f/6//z///8AAAMABQAHAAcABwAGAAQAAgAAAP3/+//5//n/+f/6//z//v8AAAIABQAHAAcABwAGAAUAAgAAAP7/+//6//n/+f/5//v//v8AAAIABAAGAAcABwAHAAUAAwAAAP7//P/6//n/+f/5//v//f8AAAEABAAGAAcABwAHAAUAAwABAP///P/6//n/+f/5//r//f///wEABAAGAAcACAAHAAYABAABAP///f/6//n/+f/5//r//P///wEAAwAFAAcABwAHAAYABAABAAAA/f/7//n/+f/5//r//P/+/wAAAwAFAAcABwAHAAYABAACAAAA/v/7//n/+f/5//r/+//+/wAAAgAFAAYABwAHAAcABQACAAAA/v/8//r/+f/5//n/+//9/wAAAgAEAAYABwAHAAcABQADAAAA///8//r/+f/5//n/+//9////AQAEAAYABwAHAAcABgADAAEA///8//r/+f/4//n/+v/8////AQADAAYABwAHAAcABgAEAAEA///9//v/+f/5//n/+v/8////AAADAAUABwAHAAcABgAEAAIAAAD9//v/+f/5//n/+v/8//7/AAACAAUABwAHAAcABgAFAAIAAAD+//v/+v/5//n/+f/7//7/AAACAAQABgAHAAcABwAFAAMAAAD+//z/+v/5//n/+f/7//3/AAABAAQABgAHAAcABwAFAAMAAQD///z/+v/5//n/+f/6//3///8BAAQABgAHAAgABwAGAAQAAQD///3/+v/5//n/+f/6//z///8BAAMABQAHAAcABwAGAAQAAQAAAP3/+//5//n/+f/6//z//v8AAAMABQAHAAcABwAGAAQAAgAAAP7/+//5//n/+f/6//v//v8AAAIABQAGAAcABwAHAAUAAgAAAP7//P/6//n/+f/5//v//f8AAAIABAAGAAcABwAHAAUAAwAAAP///P/6//n/+f/5//v//f///wEABAAGAAcABwAHAAYAAwABAP///P/6//n/+P/5//r//P///wEAAwAGAAcABwAHAAYABAABAP///f/7//n/+f/5//r//P///wAAAwAFAAcABwAHAAYABAACAAAA/f/7//n/+f/5//r//P/+/wAAAgAFAAcABwAHAAYABQACAAAA/v/7//r/+f/5//n/+//+/wAAAgAEAAYABwAHAAcABQADAAAA/v/8//r/+f/5//n/+//9/wAAAQAEAAYABwAHAAcABQADAAEA///8//r/+f/5//n/+v/9////AQAEAAYABwAIAAcABgAEAAEA///9//r/+f/5//n/+v/8////AQADAAUABwAHAAcABgAEAAEAAAD9//v/+f/5//n/+v/8//7/AAADAAUABwAHAAcABgAEAAIAAAD+//v/+f/5//n/+v/7//7/AAACAAUABgAHAAcABwAFAAIAAAD+//z/+v/5//n/+f/7//3/AAACAAQABgAHAAcABwAFAAMAAAD///z/+v/5//n/+f/7//3///8BAAQABgAHAAcABwAGAAMAAQD///z/+v/5//j/+f/6//z///8BAAMABgAHAAcABwAGAAQAAQD///3/+//5//n/+f/6//z///8AAAMABQAHAAcABwAGAAQAAgAAAP3/+//5//n/+f/6//z//v8AAAIABQAHAAcABwAGAAUAAgAAAP7/+//6//n/+f/5//v//v8AAAIABAAGAAcABwAHAAUAAwAAAP7//P/6//n/+f/5//v//f8AAAEABAAGAAcABwAHAAUAAwABAP///P/6//n/+f/5//r//f///wEABAAGAAcACAAHAAYABAABAP///f/6//n/+f/5//r//P///wEAAwAFAAcABwAHAAYABAABAAAA/f/7//n/+f/5//r//P/+/wAAAwAFAAcABwAHAAYABAACAAAA/v/7//n/+f/5//r/+//+/wAAAgAFAAYABwAHAAcABQACAAAA/v/8//r/+f/5//n/+//9/wAAAgAEAAYABwAHAAcABQADAAAA///8//r/+f/5//n/+//9////AQAEAAYABwAHAAcABgADAAEA///8//r/+f/4//n/+v/8////AQADAAYABwAHAAcABgAEAAEA///9//v/+f/5//n/+v/8////AAADAAUABwAHAAcABgAEAAIAAAD9//v/+f/5//n/+v/8//7/AAACAAUABwAHAAcABgAFAAIAAAD+//v/+v/5//n/+f/7//7/AAACAAQABgAHAAcABwAFAAMAAAD+//z/+v/5//n/+f/7//3/AAABAAQABgAHAAcABwAFAAMAAQD///z/+v/5//n/+f/6//3///8BAAQABgAHAAgABwAGAAQAAQD///3/+v/5//n/+f/6//z///8BAAMABQAHAAcABwAGAAQAAQAAAP3/+//5//n/+f/6//z//v8AAAMABQAHAAcABwAGAAQAAgAAAP7/+//5//n/+f/6//v//v8AAAIABQAGAAcABwAHAAUAAgAAAP7//P/6//n/+f/5//v//f8AAAIABAAGAAcABwAHAAUAAwAAAP///P/6//n/+f/5//v//f///wEABAAGAAcABwAHAAYAAwABAP///P/6//n/+P/5//r//P///wEAAwAGAAcABwAHAAYABAABAP///f/7//n/+f/5//r//P///wAAAwAFAAcABwAHAAYABAACAAAA/f/7//n/+f/5//r//P/+/wAAAgAFAAcABwAHAAYABQACAAAA/v/7//r/+f/5//n/+//+/wAAAgAEAAYABwAHAAcABQADAAAA/v/8//r/+f/5//n/+//9/wAAAQAEAAYABwAHAAcABQADAAEA///8//r/+f/5//n/+v/9////AQAEAAYABwAIAAcABgAEAAEA///9//r/+f/5//n/+v/8////AQADAAUABwAHAAcABgAEAAEAAAD9//v/+f/5//n/+v/8//7/AAADAAUABwAHAAcABgAEAAIAAAD+//v/+f/5//n/+v/7//7/AAACAAUABgAHAAcABwAFAAIAAAD+//z/+v/5//n/+f/7//3/AAACAAQABgAHAAcABwAFAAMAAAD///z/+v/5//n/+f/7//3///8BAAQABgAHAAcABwAGAAMAAQD///z/+v/5//j/+f/6//z///8BAAMABgAHAAcABwAGAAQAAQD///3/+//5//n/+f/6//z///8AAAMABQAHAAcABwAGAAQAAgAAAP3/+//5//n/+f/6//z//v8AAAIABQAHAAcABwAGAAUAAgAAAP7/+//6//n/+f/5//v//v8AAAIABAAGAAcABwAHAAUAAwAAAP7//P/6//n/+f/5//v//f8AAAEABAAGAAcABwAHAAUAAwABAP///P/6//n/+f/5//r//f///wEABAAGAAcACAAHAAYABAABAP///f/6//n/+f/5//r//P///wEAAwAFAAcABwAHAAYABAABAAAA/f/7//n/+f/5//r//P/+/wAAAwAFAAcABwAHAAYABAACAAAA/v/7//n/+f/5//r/+//+/wAAAgAFAAYABwAHAAcABQACAAAA/v/8//r/+f/5//n/+//9/wAAAgAEAAYABwAHAAcABQADAAAA///8//r/+f/5//n/+//9////AQAEAAYABwAHAAcABgADAAEA///8//r/+f/4//n/+v/8////AQADAAYABwAHAAcABgAEAAEA///9//v/+f/5//n/+v/8////AAADAAUABwAHAAcABgAEAAIAAAD9//v/+f/5//n/+v/8//7/AAACAAUABwAHAAcABgAFAAIAAAD+//v/+v/5//n/+f/7//7/AAACAAQABgAHAAcABwAFAAMAAAD+//z/+v/5//n/+f/7//3/AAABAAQABgAHAAcABwAFAAMAAQD///z/+v/5//n/+f/6//3///8BAAQABgAHAAgABwAGAAQAAQD///3/+v/5//n/+f/6//z///8BAAMABQAHAAcABwAGAAQAAQAAAP3/+//5//n/+f/6//z//v8AAAMABQAHAAcABwAGAAQAAgAAAP7/+//5//n/+f/6//v//v8AAAIABQAGAAcABwAHAAUAAgAAAP7//P/6//n/+f/5//v//f8AAAIABAAGAAcABwAHAAUAAwAAAP///P/6//n/+f/5//v//f///wEABAAGAAcABwAHAAYAAwABAP///P/6//n/+P/5//r//P///wEAAwAGAAcABwAHAAYABAABAP///f/7//n/+f/5//r//P///wAAAwAFAAcABwAHAAYABAACAAAA/f/7//n/+f/5//r//P/+/wAAAgAFAAcABwAHAAYABQACAAAA/v/7//r/+f/5//n/+//+/wAAAgAEAAYABwAHAAcABQADAAAA/v/8//r/+f/5//n/+//9/wAAAQAEAAYABwAHAAcABQADAAEA///8//r/+f/5//n/+v/9////AQAEAAYABwAIAAcABgAEAAEA///9//r/+f/5//n/+v/8////AQADAAUABwAHAAcABgAEAAEAAAD9//v/+f/5//n/+v/8//7/AAADAAUABwAHAAcABgAEAAIAAAD+//v/+f/5//n/+v/7//7/AAACAAUABgAHAAcABwAFAAIAAAD+//z/+v/5//n/+f/7//3/AAACAAQABgAHAAcABwAFAAMAAAD///z/+v/5//n/+f/7//3///8BAAQABgAHAAcABwAGAAMAAQD///z/+v/5//j/+f/6//z///8BAAMABgAHAAcABwAGAAQAAQD///3/+//5//n/+f/6//z///8AAAMABQAHAAcABwAGAAQAAgAAAP3/+//5//n/+f/6//z//v8AAAIABQAHAAcABwAGAAUAAgAAAP7/+//6//n/+f/5//v//v8AAAIABAAGAAcABwAHAAUAAwAAAP7//P/6//n/+f/5//v//f8AAAEABAAGAAcABwAHAAUAAwABAP///P/6//n/+f/5//r//f///wEABAAGAAcACAAHAAYABAABAP///f/6//n/+f/5//r//P///wEAAwAFAAcABwAHAAYABAABAAAA/f/7//n/+f/5//r//P/+/wAAAwAFAAcABwAHAAYABAACAAAA/v/7//n/+f/5//r/+//+/wAAAgAFAAYABwAHAAcABQACAAAA/v/8//r/+f/5//n/+//9/wAAAgAEAAYABwAHAAcABQADAAAA///8//r/+f/5//n/+//9////AQAEAAYABwAHAAcABgADAAEA///8//r/+f/4//n/+v/8////AQADAAYABwAHAAcABgAEAAEA///9//v/+f/5//n/+v/8////AAADAAUABwAHAAcABgAEAAIAAAD9//v/+f/5//n/+v/8//7/AAACAAUABwAHAAcABgAFAAIAAAD+//v/+v/5//n/+f/7//7/AAACAAQABgAHAAcABwAFAAMAAAD+//z/+v/5//n/+f/7//3/AAABAAQABgAHAAcABwAFAAMAAQD///z/+v/5//n/+f/6//3///8BAAQABgAHAAgABwAGAAQAAQD///3/+v/5//n/+f/6//z///8BAAMABQAHAAcABwAGAAQAAQAAAP3/+//5//n/+f/6//z//v8AAAMABQAHAAcABwAGAAQAAgAAAP7/+//5//n/+f/6//v//v8AAAIABQAGAAcABwAHAAUAAgAAAP7//P/6//n/+f/5//v//f8AAAIABAAGAAcABwAHAAUAAwAAAP///P/6//n/+f/5//v//f///wEABAAGAAcABwAHAAYAAwABAP///P/6//n/+P/5//r//P///wEAAwAGAAcABwAHAAYABAABAP///f/7//n/+f/5//r//P///wAAAwAFAAcABwAHAAYABAACAAAA/f/7//n/+f/5//r//P/+/wAAAgAFAAcABwAHAAYABQACAAAA/v/7//r/+f/5//n/+//+/wAAAgAEAAYABwAHAAcABQADAAAA/v/8//r/+f/5//n/+//9/wAAAQAEAAYABwAHAAcABQADAAEA///8//r/+f/5//n/+v/9////AQAEAAYABwAIAAcABgAEAAEA///9//r/+f/5//n/+v/8////AQADAAUABwAHAAcABgAEAAEAAAD9//v/+f/5//n/+v/8//7/AAADAAUABwAHAAcABgAEAAIAAAD+//v/+f/5//n/+v/7//7/AAACAAUABgAHAAcABwAFAAIAAAD+//z/+v/5//n/+f/7//3/AAACAAQABgAHAAcABwAFAAMAAAD///z/+v/5//n/+f/7//3///8BAAQABgAHAAcABwAGAAMAAQD///z/+v/5//j/+f/6//z///8BAAMABgAHAAcABwAGAAQAAQD///3/+//5//n/+f/6//z///8AAAMABQAHAAcABwAGAAQAAgAAAP3/+//5//n/+f/6//z//v8AAAIABQAHAAcABwAGAAUAAgAAAP7/+//6//n/+f/5//v//v8AAAIABAAGAAcABwAHAAUAAwAAAP7//P/6//n/+f/5//v//f8AAAEABAAGAAcABwAHAAUAAwABAP///P/6//n/+f/5//r//f///wEABAAGAAcACAAHAAYABAABAP///f/6//n/+f/5//r//P///wEAAwAFAAcABwAHAAYABAABAAAA/f/7//n/+f/5//r//P/+/wAAAwAFAAcABwAHAAYABAACAAAA/v/7//n/+f/5//r/+//+/wAAAgAFAAYABwAHAAcABQACAAAA/v/8//r/+f/5//n/+//9/wAAAgAEAAYABwAHAAcABQADAAAA///8//r/+f/5//n/+//9////AQAEAAYABwAHAAcABgADAAEA///8//r/+f/4//n/+v/8////AQADAAYABwAHAAcABgAEAAEA///9//v/+f/5//n/+v/8////AAADAAUABwAHAAcABgAEAAIAAAD9//v/+f/5//n/+v/8//7/AAACAAUABwAHAAcABgAFAAIAAAD+//v/+v/5//n/+f/7//7/AAACAAQABgAHAAcABwAFAAMAAAD+//z/+v/5//n/+f/7//3/AAABAAQABgAHAAcABwAFAAMAAQD///z/+v/5//n/+f/6//3///8BAAQABgAHAAgABwAGAAQAAQD///3/+v/5//n/+f/6//z///8BAAMABQAHAAcABwAGAAQAAQAAAP3/+//5//n/+f/6//z//v8AAAMABQAHAAcABwAGAAQAAgAAAP7/+//5//n/+f/6//v//v8AAAIABQAGAAcABwAHAAUAAgAAAP7//P/6//n/+f/5//v//f8AAAIABAAGAAcABwAHAAUAAwAAAP///P/6//n/+f/5//v//f///wEABAAGAAcABwAHAAYAAwABAP///P/6//n/+P/5//r//P///wEAAwAGAAcABwAHAAYABAABAP///f/7//n/+f/5//r//P///wAAAwAFAAcABwAHAAYABAACAAAA/f/7//n/+f/5//r//P/+/wAAAgAFAAcABwAHAAYABQACAAAA/v/7//r/+f/5//n/+//+/wAAAgAEAAYABwAHAAcABQADAAAA/v/8//r/+f/5//n/+//9/wAAAQAEAAYABwAHAAcABQADAAEA///8//r/+f/5//n/+v/9////AQAEAAYABwAIAAcABgAEAAEA///9//r/+f/5//n/+v/8////AQADAAUABwAHAAcABgAEAAEAAAD9//v/+f/5//n/+v/8//7/AAADAAUABwAHAAcABgAEAAIAAAD+//v/+f/5//n/+v/7//7/AAACAAUABgAHAAcABwAFAAIAAAD+//z/+v/5//n/+f/7//3/AAACAAQABgAHAAcABwAFAAMAAAD///z/+v/5//n/+f/7//3///8BAAQABgAHAAcABwAGAAMAAQD///z/+v/5//j/+f/6//z///8BAAMABgAHAAcABwAGAAQAAQD///3/+//5//n/+f/6//z///8AAAMABQAHAAcABwAGAAQAAgAAAP3/+//5//n/+f/6//z//v8AAAIABQAHAAcABwAGAAUAAgAAAP7/+//6//n/+f/5//v//v8AAAIABAAGAAcABwAHAAUAAwAAAP7//P/6//n/+f/5//v//f8AAAEABAAGAAcABwAHAAUAAwABAP///P/6//n/+f/5//r//f///wEABAAGAAcACAAHAAYABAABAP///f/6//n/+f/5//r//P///wEAAwAFAAcABwAHAAYABAABAAAA/f/7//n/+f/5//r//P/+/wAAAwAFAAcABwAHAAYABAACAAAA/v/7//n/+f/5//r/+//+/wAAAgAFAAYABwAHAAcABQACAAAA/v/8//r/+f/5//n/+//9/wAAAgAEAAYABwAHAAcABQADAAAA///8//r/+f/5//n/+//9////AQAEAAYABwAHAAcABgADAAEA///8//r/+f/4//n/+v/8////AQADAAYABwAHAAcABgAEAAEA///9//v/+f/5//n/+v/8////AAADAAUABwAHAAcABgAEAAIAAAD9//v/+f/5//n/+v/8//7/AAACAAUABwAHAAcABgAFAAIAAAD+//v/+v/5//n/+f/7//7/AAACAAQABgAHAAcABwAFAAMAAAD+//z/+v/5//n/+f/7//3/AAABAAQABgAHAAcABwAFAAMAAQD///z/+v/5//n/+f/6//3///8BAAQABgAHAAgABwAGAAQAAQD///3/+v/5//n/+f/6//z///8BAAMABQAHAAcABwAGAAQAAQAAAP3/+//5//n/+f/6//z//v8AAAMABQAHAAcABwAGAAQAAgAAAP7/+//5//n/+f/6//v//v8AAAIABQAGAAcABwAHAAUAAgAAAP7//P/6//n/+f/5//v//f8AAAIABAAGAAcABwAHAAUAAwAAAP///P/6//n/+f/5//v//f///wEABAAGAAcABwAHAAYAAwABAP///P/6//n/+P/5//r//P///wEAAwAGAAcABwAHAAYABAABAP///f/7//n/+f/5//r//P///wAAAwAFAAcABwAHAAYABAACAAAA/f/7//n/+f/5//r//P/+/wAAAgAFAAcABwAHAAYABQACAAAA/v/7//r/+f/5//n/+//+/wAAAgAEAAYABwAHAAcABQADAAAA/v/8//r/+f/5//n/+//9/wAAAQAEAAYABwAHAAcABQADAAEA///8//r/+f/5//n/+v/9////AQAEAAYABwAIAAcABgAEAAEA///9//r/+f/5//n/+v/8////AQADAAUABwAHAAcABgAEAAEAAAD9//v/+f/5//n/+v/8//7/AAADAAUABwAHAAcABgAEAAIAAAD+//v/+f/5//n/+v/7//7/AAACAAUABgAHAAcABwAFAAIAAAD+//z/+v/5//n/+f/7//3/AAACAAQABgAHAAcABwAFAAMAAAD///z/+v/5//n/+f/7//3///8BAAQABgAHAAcABwAGAAMAAQD///z/+v/5//j/+f/6//z///8BAAMABgAHAAcABwAGAAQAAQD///3/+//5//n/+f/6//z///8AAAMABQAHAAcABwAGAAQAAgAAAP3/+//5//n/+f/6//z//v8AAAIABQAHAAcABwAGAAUAAgAAAP7/+//6//n/+f/5//v//v8AAAIABAAGAAcABwAHAAUAAwAAAP7//P/6//n/+f/5//v//f8AAAEABAAGAAcABwAHAAUAAwABAP///P/6//n/+f/5//r//f///wEABAAGAAcACAAHAAYABAABAP///f/6//n/+f/5//r//P///wEAAwAFAAcABwAHAAYABAABAAAA/f/7//n/+f/5//r//P/+/wAAAwAFAAcABwAHAAYABAACAAAA/v/7//n/+f/5//r/+//+/wAAAgAFAAYABwAHAAcABQACAAAA/v/8//r/+f/5//n/+//9/wAAAgAEAAYABwAHAAcABQADAAAA///8//r/+f/5//n/+//9////AQAEAAYABwAHAAcABgADAAEA///8//r/+f/4//n/+v/8////AQADAAYABwAHAAcABgAEAAEA///9//v/+f/5//n/+v/8////AAADAAUABwAHAAcABgAEAAIAAAD9//v/+f/5//n/+v/8//7/AAACAAUABwAHAAcABgAFAAIAAAD+//v/+v/5//n/+f/7//7/AAACAAQABgAHAAcABwAFAAMAAAD+//z/+v/5//n/+f/7//3/AAABAAQABgAHAAcABwAFAAMAAQD///z/+v/5//n/+f/6//3///8BAAQABgAHAAgABwAGAAQAAQD///3/+v/5//n/+f/6//z///8BAAMABQAHAAcABwAGAAQAAQAAAP3/+//5//n/+f/6//z//v8AAAMABQAHAAcABwAGAAQAAgAAAP7/+//5//n/+f/6//v//v8AAAIABQAGAAcABwAHAAUAAgAAAP7//P/6//n/+f/5//v//f8AAAIABAAGAAcABwAHAAUAAwAAAP///P/6//n/+f/5//v//f///wEABAAGAAcABwAHAAYAAwABAP///P/6//n/+P/5//r//P///wEAAwAGAAcABwAHAAYABAABAP///f/7//n/+f/5//r//P///wAAAwAFAAcABwAHAAYABAACAAAA/f/7//n/+f/5//r//P/+/wAAAgAFAAcABwAHAAYABQACAAAA/v/7//r/+f/5//n/+//+/wAAAgAEAAYABwAHAAcABQADAAAA/v/8//r/+f/5//n/+//9/wAAAQAEAAYABwAHAAcABQADAAEA///8//r/+f/5//n/+v/9////AQAEAAYABwAIAAcABgAEAAEA///9//r/+f/5//n/+v/8////AQADAAUABwAHAAcABgAEAAEAAAD9//v/+f/5//n/+v/8//7/AAADAAUABwAHAAcABgAEAAIAAAD+//v/+f/5//n/+v/7//7/AAACAAUABgAHAAcABwAFAAIAAAD+//z/+v/5//n/+f/7//3/AAACAAQABgAHAAcABwAFAAMAAAD///z/+v/5//n/+f/7//3///8BAAQABgAHAAcABwAGAAMAAQD///z/+v/5//j/+f/6//z///8BAAMABgAHAAcABwAGAAQAAQD///3/+//5//n/+f/6//z///8AAAMABQAHAAcABwAGAAQAAgAAAP3/+//5//n/+f/6//z//v8AAAIABQAHAAcABwAGAAUAAgAAAP7/+//6//n/+f/5//v//v8AAAIABAAGAAcABwAHAAUAAwAAAP7//P/6//n/+f/5//v//f8AAAEABAAGAAcABwAHAAUAAwABAP///P/6//n/+f/5//r//f///wEABAAGAAcACAAHAAYABAABAP///f/6//n/+f/5//r//P///wEAAwAFAAcABwAHAAYABAABAAAA/f/7//n/+f/5//r//P/+/wAAAwAFAAcABwAHAAYABAACAAAA/v/7//n/+f/5//r/+//+/wAAAgAFAAYABwAHAAcABQACAAAA/v/8//r/+f/5//n/+//9/wAAAgAEAAYABwAHAAcABQADAAAA///8//r/+f/5//n/+//9////AQAEAAYABwAHAAcABgADAAEA///8//r/+f/4//n/+v/8////AQADAAYABwAHAAcABgAEAAEA///9//v/+f/5//n/+v/8////AAADAAUABwAHAAcABgAEAAIAAAD9//v/+f/5//n/+v/8//7/AAACAAUABwAHAAcABgAFAAIAAAD+//v/+v/5//n/+f/7//7/AAACAAQABgAHAAcABwAFAAMAAAD+//z/+v/5//n/+f/7//3/AAABAAQABgAHAAcABwAFAAMAAQD///z/+v/5//n/+f/6//3///8BAAQABgAHAAgABwAGAAQAAQD///3/+v/5//n/+f/6//z///8BAAMABQAHAAcABwAGAAQAAQAAAP3/+//5//n/+f/6//z//v8AAAMABQAHAAcABwAGAAQAAgAAAP7/+//5//n/+f/6//v//v8AAAIABQAGAAcABwAHAAUAAgAAAP7//P/6//n/+f/5//v//f8AAAIABAAGAAcABwAHAAUAAwAAAP///P/6//n/+f/5//v//f///wEABAAGAAcABwAHAAYAAwABAP///P/6//n/+P/5//r//P///wEAAwAGAAcABwAHAAYABAABAP///f/7//n/+f/5//r//P///wAAAwAFAAcABwAHAAYABAACAAAA/f/7//n/+f/5//r//P/+/wAAAgAFAAcABwAHAAYABQACAAAA/v/7//r/+f/5//n/+//+/wAAAgAEAAYABwAHAAcABQADAAAA/v/8//r/+f/5//n/+//9/wAAAQAEAAYABwAHAAcABQADAAEA///8//r/+f/5//n/+v/9////AQAEAAYABwAIAAcABgAEAAEA///9//r/+f/5//n/+v/8////AQADAAUABwAHAAcABgAEAAEAAAD9//v/+f/5//n/+v/8//7/AAADAAUABwAHAAcABgAEAAIAAAD+//v/+f/5//n/+v/7//7/AAACAAUABgAHAAcABwAFAAIAAAD+//z/+v/5//n/+f/7//3/AAACAAQABgAHAAcABwAFAAMAAAD///z/+v/5//n/+f/7//3///8BAAQABgAHAAcABwAGAAMAAQD///z/+v/5//j/+f/6//z///8BAAMABgAHAAcABwAGAAQAAQD///3/+//5//n/+f/6//z///8AAAMABQAHAAcABwAGAAQAAgAAAP3/+//5//n/+f/6//z//v8AAAIABQAHAAcABwAGAAUAAgAAAP7/+//6//n/+f/5//v//v8AAAIABAAGAAcABwAHAAUAAwAAAP7//P/6//n/+f/5//v//f8AAAEABAAGAAcABwAHAAUAAwABAP///P/6//n/+f/5//r//f///wEABAAGAAcACAAHAAYABAABAP///f/6//n/+f/5//r//P///wEAAwAFAAcABwAHAAYABAABAAAA/f/7//n/+f/5//r//P/+/wAAAwAFAAcABwAHAAYABAACAAAA/v/7//n/+f/5//r/+//+/wAAAgAFAAYABwAHAAcABQACAAAA/v/8//r/+f/5//n/+//9/wAAAgAEAAYABwAHAAcABQADAAAA///8//r/+f/5//n/+//9////AQAEAAYABwAHAAcABgADAAEA///8//r/+f/4//n/+v/8////AQADAAYABwAHAAcABgAEAAEA///9//v/+f/5//n/+v/8////AAADAAUABwAHAAcABgAEAAIAAAD9//v/+f/5//n/+v/8//7/AAACAAUABwAHAAcABgAFAAIAAAD+//v/+v/5//n/+f/7//7/AAACAAQABgAHAAcABwAFAAMAAAD+//z/+v/5//n/+f/7//3/AAABAAQABgAHAAcABwAFAAMAAQD///z/+v/5//n/+f/6//3///8BAAQABgAHAAgABwAGAAQAAQD///3/+v/5//n/+f/6//z///8BAAMABQAHAAcABwAGAAQAAQAAAP3/+//5//n/+f/6//z//v8AAAMABQAHAAcABwAGAAQAAgAAAP7/+//5//n/+f/6//v//v8AAAIABQAGAAcABwAHAAUAAgAAAP7//P/6//n/+f/5//v//f8AAAIABAAGAAcABwAHAAUAAwAAAP///P/6//n/+f/5//v//f///wEABAAGAAcABwAHAAYAAwABAP///P/6//n/+P/5//r//P///wEAAwAGAAcABwAHAAYABAABAP///f/7//n/+f/5//r//P///wAAAwAFAAcABwAHAAYABAACAAAA/f/7//n/+f/5//r//P/+/wAAAgAFAAcABwAHAAYABQACAAAA/v/7//r/+f/5//n/+//+/wAAAgAEAAYABwAHAAcABQADAAAA/v/8//r/+f/5//n/+//9/wAAAQAEAAYABwAHAAcABQADAAEA///8//r/+f/5//n/+v/9////AQAEAAYABwAIAAcABgAEAAEA///9//r/+f/5//n/+v/8////AQADAAUABwAHAAcABgAEAAEAAAD9//v/+f/5//n/+v/8//7/AAADAAUABwAHAAcABgAEAAIAAAD+//v/+f/5//n/+v/7//7/AAACAAUABgAHAAcABwAFAAIAAAD+//z/+v/5//n/+f/7//3/AAACAAQABgAHAAcABwAFAAMAAAD///z/+v/5//n/+f/7//3///8BAAQABgAHAAcABwAGAAMAAQD///z/+v/5//j/+f/6//z///8BAAMABgAHAAcABwAGAAQAAQD///3/+//5//n/+f/6//z///8AAAMABQAHAAcABwAGAAQAAgAAAP3/+//5//n/+f/6//z//v8AAAIABQAHAAcABwAGAAUAAgAAAP7/+//6//n/+f/5//v//v8AAAIABAAGAAcABwAHAAUAAwAAAP7//P/6//n/+f/5//v//f8AAAEABAAGAAcABwAHAAUAAwABAP///P/6//n/+f/5//r//f///wEABAAGAAcACAAHAAYABAABAP///f/6//n/+f/5//r//P///wEAAwAFAAcABwAHAAYABAABAAAA/f/7//n/+f/5//r//P/+/wAAAwAFAAcABwAHAAYABAACAAAA/v/7//n/+f/5//r/+//+/wAAAgAFAAYABwAHAAcABQACAAAA/v/8//r/+f/5//n/+//9/wAAAgAEAAYABwAHAAcABQADAAAA///8//r/+f/5//n/+//9////AQAEAAYABwAHAAcABgADAAEA///8//r/+f/4//n/+v/8////AQADAAYABwAHAAcABgAEAAEA///9//v/+f/5//n/+v/8////AAADAAUABwAHAAcABgAEAAIAAAD9//v/+f/5//n/+v/8//7/AAACAAUABwAHAAcABgAFAAIAAAD+//v/+v/5//n/+f/7//7/AAACAAQABgAHAAcABwAFAAMAAAD+//z/+v/5//n/+f/7//3/AAABAAQABgAHAAcABwAFAAMAAQD///z/+v/5//n/+f/6//3///8BAAQABgAHAAgABwAGAAQAAQD///3/+v/5//n/+f/6//z///8BAAMABQAHAAcABwAGAAQAAQAAAP3/+//5//n/+f/6//z//v8AAAMABQAHAAcABwAGAAQAAgAAAP7/+//5//n/+f/6//v//v8AAAIABQAGAAcABwAHAAUAAgAAAP7//P/6//n/+f/5//v//f8AAAIABAAGAAcABwAHAAUAAwAAAP///P/6//n/+f/5//v//f///wEABAAGAAcABwAHAAYAAwABAP///P/6//n/+P/5//r//P///wEAAwAGAAcABwAHAAYABAABAP///f/7//n/+f/5//r//P///wAAAwAFAAcABwAHAAYABAACAAAA/f/7//n/+f/5//r//P/+/wAAAgAFAAcABwAHAAYABQACAAAA/v/7//r/+f/5//n/+//+/wAAAgAEAAYABwAHAAcABQADAAAA/v/8//r/+f/5//n/+//9/wAAAQAEAAYABwAHAAcABQADAAEA///8//r/+f/5//n/+v/9////AQAEAAYABwAIAAcABgAEAAEA///9//r/+f/5//n/+v/8////AQADAAUABwAHAAcABgAEAAEAAAD9//v/+f/5//n/+v/8//7/AAADAAUABwAHAAcABgAEAAIAAAD+//v/+f/5//n/+v/7//7/AAACAAUABgAHAAcABwAFAAIAAAD+//z/+v/5//n/+f/7//3/AAACAAQABgAHAAcABwAFAAMAAAD///z/+v/5//n/+f/7//3///8BAAQABgAHAAcABwAGAAMAAQD///z/+v/5//j/+f/6//z///8BAAMABgAHAAcABwAGAAQAAQD///3/+//5//n/+f/6//z///8AAAMABQAHAAcABwAGAAQAAgAAAP3/+//5//n/+f/6//z//v8AAAIABQAHAAcABwAGAAUAAgAAAP7/+//6//n/+f/5//v//v8AAAIABAAGAAcABwAHAAUAAwAAAP7//P/6//n/+f/5//v//f8AAAEABAAGAAcABwAHAAUAAwABAP///P/6//n/+f/5//r//f///wEABAAGAAcACAAHAAYABAABAP///f/6//n/+f/5//r//P///wEAAwAFAAcABwAHAAYABAABAAAA/f/7//n/+f/5//r//P/+/wAAAwAFAAcABwAHAAYABAACAAAA/v/7//n/+f/5//r/+//+/wAAAgAFAAYABwAHAAcABQACAAAA/v/8//r/+f/5//n/+//9/wAAAgAEAAYABwAHAAcABQADAAAA///8//r/+f/5//n/+//9////AQAEAAYABwAHAAcABgADAAEA///8//r/+f/4//n/+v/8////AQADAAYABwAHAAcABgAEAAEA///9//v/+f/5//n/+v/8////AAADAAUABwAHAAcABgAEAAIAAAD9//v/+f/5//n/+v/8//7/AAACAAUABwAHAAcABgAFAAIAAAD+//v/+v/5//n/+f/7//7/AAACAAQABgAHAAcABwAFAAMAAAD+//z/+v/5//n/+f/7//3/AAABAAQABgAHAAcABwAFAAMAAQD///z/+v/5//n/+f/6//3///8BAAQABgAHAAgABwAGAAQAAQD///3/+v/5//n/+f/6//z///8BAAMABQAHAAcABwAGAAQAAQAAAP3/+//5//n/+f/6//z//v8AAAMABQAHAAcABwAGAAQAAgAAAP7/+//5//n/+f/6//v//v8AAAIABQAGAAcABwAHAAUAAgAAAP7//P/6//n/+f/5//v//f8AAAIABAAGAAcABwAHAAUAAwAAAP///P/6//n/+f/5//v//f///wEABAAGAAcABwAHAAYAAwABAP///P/6//n/+P/5//r//P///wEAAwAGAAcABwAHAAYABAABAP///f/7//n/+f/5//r//P///wAAAwAFAAcABwAHAAYABAACAAAA/f/7//n/+f/5//r//P/+/wAAAgAFAAcABwAHAAYABQACAAAA/v/7//r/+f/5//n/+//+/wAAAgAEAAYABwAHAAcABQADAAAA/v/8//r/+f/5//n/+//9/wAAAQAEAAYABwAHAAcABQADAAEA///8//r/+f/5//n/+v/9////AQAEAAYABwAIAAcABgAEAAEA///9//r/+f/5//n/+v/8////AQADAAUABwAHAAcABgAEAAEAAAD9//v/+f/5//n/+v/8//7/AAADAAUABwAHAAcABgAEAAIAAAD+//v/+f/5//n/+v/7//7/AAACAAUABgAHAAcABwAFAAIAAAD+//z/+v/5//n/+f/7//3/AAACAAQABgAHAAcABwAFAAMAAAD///z/+v/5//n/+f/7//3///8BAAQABgAHAAcABwAGAAMAAQD///z/+v/5//j/+f/6//z///8BAAMABgAHAAcABwAGAAQAAQD///3/+//5//n/+f/6//z///8AAAMABQAHAAcABwAGAAQAAgAAAP3/+//5//n/+f/6//z//v8AAAIABQAHAAcABwAGAAUAAgAAAP7/+//6//n/+f/5//v//v8AAAIABAAGAAcABwAHAAUAAwAAAP7//P/6//n/+f/5//v//f8AAAEABAAGAAcABwAHAAUAAwABAP///P/6//n/+f/5//r//f///wEABAAGAAcACAAHAAYABAABAP///f/6//n/+f/5//r//P///wEAAwAFAAcABwAHAAYABAABAAAA/f/7//n/+f/5//r//P/+/wAAAwAFAAcABwAHAAYABAACAAAA/v/7//n/+f/5//r/+//+/wAAAgAFAAYABwAHAAcABQACAAAA/v/8//r/+f/5//n/+//9/wAAAgAEAAYABwAHAAcABQADAAAA///8//r/+f/5//n/+//9////AQAEAAYABwAHAAcABgADAAEA///8//r/+f/4//n/+v/8////AQADAAYABwAHAAcABgAEAAEA///9//v/+f/5//n/+v/8////AAADAAUABwAHAAcABgAEAAIAAAD9//v/+f/5//n/+v/8//7/AAACAAUABwAHAAcABgAFAAIAAAD+//v/+v/5//n/+f/7//7/AAACAAQABgAHAAcABwAFAAMAAAD+//z/+v/5//n/+f/7//3/AAABAAQABgAHAAcABwAFAAMAAQD///z/+v/5//n/+f/6//3///8BAAQABgAHAAgABwAGAAQAAQD///3/+v/5//n/+f/6//z///8BAAMABQAHAAcABwAGAAQAAQAAAP3/+//5//n/+f/6//z//v8AAAMABQAHAAcABwAGAAQAAgAAAP7/+//5//n/+f/6//v//v8AAAIABQAGAAcABwAHAAUAAgAAAP7//P/6//n/+f/5//v//f8AAAIABAAGAAcABwAHAAUAAwAAAP///P/6//n/+f/5//v//f///wEABAAGAAcABwAHAAYAAwABAP///P/6//n/+P/5//r//P///wEAAwAGAAcABwAHAAYABAABAP///f/7//n/+f/5//r//P///wAAAwAFAAcABwAHAAYABAACAAAA/f/7//n/+f/5//r//P/+/wAAAgAFAAcABwAHAAYABQACAAAA/v/7//r/+f/5//n/+//+/wAAAgAEAAYABwAHAAcABQADAAAA/v/8//r/+f/5//n/+//9/wAAAQAEAAYABwAHAAcABQADAAEA///8//r/+f/5//n/+v/9////AQAEAAYABwAIAAcABgAEAAEA///9//r/+f/5//n/+v/8////AQADAAUABwAHAAcABgAEAAEAAAD9//v/+f/5//n/+v/8//7/AAADAAUABwAHAAcABgAEAAIAAAD+//v/+f/5//n/+v/7//7/AAACAAUABgAHAAcABwAFAAIAAAD+//z/+v/5//n/+f/7//3/AAACAAQABgAHAAcABwAFAAMAAAD///z/+v/5//n/+f/7//3///8BAAQABgAHAAcABwAGAAMAAQD///z/+v/5//j/+f/6//z///8BAAMABgAHAAcABwAGAAQAAQD///3/+//5//n/+f/6//z///8AAAMABQAHAAcABwAGAAQAAgAAAP3/+//5//n/+f/6//z//v8AAAIABQAHAAcABwAGAAUAAgAAAP7/+//6//n/+f/5//v//v8AAAIABAAGAAcABwAHAAUAAwAAAP7//P/6//n/+f/5//v//f8AAAEABAAGAAcABwAHAAUAAwABAP///P/6//n/+f/5//r//f///wEABAAGAAcACAAHAAYABAABAP///f/6//n/+f/5//r//P///wEAAwAFAAcABwAHAAYABAABAAAA/f/7//n/+f/5//r//P/+/wAAAwAFAAcABwAHAAYABAACAAAA/v/7//n/+f/5//r/+//+/wAAAgAFAAYABwAHAAcABQACAAAA/v/8//r/+f/5//n/+//9/wAAAgAEAAYABwAHAAcABQADAAAA///8//r/+f/5//n/+//9////AQAEAAYABwAHAAcABgADAAEA///8//r/+f/4//n/+v/8////AQADAAYABwAHAAcABgAEAAEA///9//v/+f/5//n/+v/8////AAADAAUABwAHAAcABgAEAAIAAAD9//v/+f/5//n/+v/8//7/AAACAAUABwAHAAcABgAFAAIAAAD+//v/+v/5//n/+f/7//7/AAACAAQABgAHAAcABwAFAAMAAAD+//z/+v/5//n/+f/7//3/AAABAAQABgAHAAcABwAFAAMAAQD///z/+v/5//n/+f/6//3///8BAAQABgAHAAgABwAGAAQAAQD///3/+v/5//n/+f/6//z///8BAAMABQAHAAcABwAGAAQAAQAAAP3/+//5//n/+f/6//z//v8AAAMABQAHAAcABwAGAAQAAgAAAP7/+//5//n/+f/6//v//v8AAAIABQAGAAcABwAHAAUAAgAAAP7//P/6//n/+f/5//v//f8AAAIABAAGAAcABwAHAAUAAwAAAP///P/6//n/+f/5//v//f///wEABAAGAAcABwAHAAYAAwABAP///P/6//n/+P/5//r//P///wEAAwAGAAcABwAHAAYABAABAP///f/7//n/+f/5//r//P///wAAAwAFAAcABwAHAAYABAACAAAA/f/7//n/+f/5//r//P/+/wAAAgAFAAcABwAHAAYABQACAAAA/v/7//r/+f/5//n/+//+/wAAAgAEAAYABwAHAAcABQADAAAA/v/8//r/+f/5//n/+//9/wAAAQAEAAYABwAHAAcABQADAAEA///8//r/+f/5//n/+v/9////AQAEAAYABwAIAAcABgAEAAEA///9//r/+f/5//n/+v/8////AQADAAUABwAHAAcABgAEAAEAAAD9//v/+f/5//n/+v/8//7/AAADAAUABwAHAAcABgAEAAIAAAD+//v/+f/5//n/+v/7//7/AAACAAUABgAHAAcABwAFAAIAAAD+//z/+v/5//n/+f/7//3/AAACAAQABgAHAAcABwAFAAMAAAD///z/+v/5//n/+f/7//3///8BAAQABgAHAAcABwAGAAMAAQD///z/+v/5//j/+f/6//z///8BAAMABgAHAAcABwAGAAQAAQD///3/+//5//n/+f/6//z///8AAAMABQAHAAcABwAGAAQAAgAAAP3/+//5//n/+f/6//z//v8AAAIABQAHAAcABwAGAAUAAgAAAP7/+//6//n/+f/5//v//v8AAAIABAAGAAcABwAHAAUAAwAAAP7//P/6//n/+f/5//v//f8AAAEABAAGAAcABwAHAAUAAwABAP///P/6//n/+f/5//r//f///wEABAAGAAcACAAHAAYABAABAP///f/6//n/+f/5//r//P///wEAAwAFAAcABwAHAAYABAABAAAA/f/7//n/+f/5//r//P/+/wAAAwAFAAcABwAHAAYABAACAAAA/v/7//n/+f/5//r/+//+/wAAAgAFAAYABwAHAAcABQACAAAA/v/8//r/+f/5//n/+//9/wAAAgAEAAYABwAHAAcABQADAAAA///8//r/+f/5//n/+//9////AQAEAAYABwAHAAcABgADAAEA///8//r/+f/4//n/+v/8////AQADAAYABwAHAAcABgAEAAEA///9//v/+f/5//n/+v/8////AAADAAUABwAHAAcABgAEAAIAAAD9//v/+f/5//n/+v/8//7/AAACAAUABwAHAAcABgAFAAIAAAD+//v/+v/5//n/+f/7//7/AAACAAQABgAHAAcABwAFAAMAAAD+//z/+v/5//n/+f/7//3/AAABAAQABgAHAAcABwAFAAMAAQD///z/+v/5//n/+f/6//3///8BAAQABgAHAAgABwAGAAQAAQD///3/+v/5//n/+f/6//z///8BAAMABQAHAAcABwAGAAQAAQAAAP3/+//5//n/+f/6//z//v8AAAMABQAHAAcABwAGAAQAAgAAAP7/+//5//n/+f/6//v//v8AAAIABQAGAAcABwAHAAUAAgAAAP7//P/6//n/+f/5//v//f8AAAIABAAGAAcABwAHAAUAAwAAAP///P/6//n/+f/5//v//f///wEABAAGAAcABwAHAAYAAwABAP///P/6//n/+P/5//r//P///wEAAwAGAAcABwAHAAYABAABAP///f/7//n/+f/5//r//P///wAAAwAFAAcABwAHAAYABAACAAAA/f/7//n/+f/5//r//P/+/wAAAgAFAAcABwAHAAYABQACAAAA/v/7//r/+f/5//n/+//+/wAAAgAEAAYABwAHAAcABQADAAAA/v/8//r/+f/5//n/+//9/wAAAQAEAAYABwAHAAcABQADAAEA///8//r/+f/5//n/+v/9////AQAEAAYABwAIAAcABgAEAAEA///9//r/+f/5//n/+v/8////AQADAAUABwAHAAcABgAEAAEAAAD9//v/+f/5//n/+v/8//7/AAADAAUABwAHAAcABgAEAAIAAAD+//v/+f/5//n/+v/7//7/AAACAAUABgAHAAcABwAFAAIAAAD+//z/+v/5//n/+f/7//3/AAACAAQABgAHAAcABwAFAAMAAAD///z/+v/5//n/+f/7//3///8BAAQABgAHAAcABwAGAAMAAQD///z/+v/5//j/+f/6//z///8BAAMABgAHAAcABwAGAAQAAQD///3/+//5//n/+f/6//z///8AAAMABQAHAAcABwAGAAQAAgAAAP3/+//5//n/+f/6//z//v8AAAIABQAHAAcABwAGAAUAAgAAAP7/+//6//n/+f/5//v//v8AAAIABAAGAAcABwAHAAUAAwAAAP7//P/6//n/+f/5//v//f8AAAEABAAGAAcABwAHAAUAAwABAP///P/6//n/+f/5//r//f///wEABAAGAAcACAAHAAYABAABAP///f/6//n/+f/5//r//P///wEAAwAFAAcABwAHAAYABAABAAAA/f/7//n/+f/5//r//P/+/wAAAwAFAAcABwAHAAYABAACAAAA/v/7//n/+f/5//r/+//+/wAAAgAFAAYABwAHAAcABQACAAAA/v/8//r/+f/5//n/+//9/wAAAgAEAAYABwAHAAcABQADAAAA///8//r/+f/5//n/+//9////AQAEAAYABwAHAAcABgADAAEA///8//r/+f/4//n/+v/8////AQADAAYABwAHAAcABgAEAAEA///9//v/+f/5//n/+v/8////AAADAAUABwAHAAcABgAEAAIAAAD9//v/+f/5//n/+v/8//7/AAACAAUABwAHAAcABgAFAAIAAAD+//v/+v/5//n/+f/7//7/AAACAAQABgAHAAcABwAFAAMAAAD+//z/+v/5//n/+f/7//3/AAABAAQABgAHAAcABwAFAAMAAQD///z/+v/5//n/+f/6//3///8BAAQABgAHAAgABwAGAAQAAQD///3/+v/5//n/+f/6//z///8BAAMABQAHAAcABwAGAAQAAQAAAP3/+//5//n/+f/6//z//v8AAAMABQAHAAcABwAGAAQAAgAAAP7/+//5//n/+f/6//v//v8AAAIABQAGAAcABwAHAAUAAgAAAP7//P/6//n/+f/5//v//f8AAAIABAAGAAcABwAHAAUAAwAAAP///P/6//n/+f/5//v//f///wEABAAGAAcABwAHAAYAAwABAP///P/6//n/+P/5//r//P///wEAAwAGAAcABwAHAAYABAABAP///f/7//n/+f/5//r//P///wAAAwAFAAcABwAHAAYABAACAAAA/f/7//n/+f/5//r//P/+/wAAAgAFAAcABwAHAAYABQACAAAA/v/7//r/+f/5//n/+//+/wAAAgAEAAYABwAHAAcABQADAAAA/v/8//r/+f/5//n/+//9/wAAAQAEAAYABwAHAAcABQADAAEA///8//r/+f/5//n/+v/9////AQAEAAYABwAIAAcABgAEAAEA///9//r/+f/5//n/+v/8////AQADAAUABwAHAAcABgAEAAEAAAD9//v/+f/5//n/+v/8//7/AAADAAUABwAHAAcABgAEAAIAAAD+//v/+f/5//n/+v/7//7/AAACAAUABgAHAAcABwAFAAIAAAD+//z/+v/5//n/+f/7//3/AAACAAQABgAHAAcABwAFAAMAAAD///z/+v/5//n/+f/7//3///8BAAQABgAHAAcABwAGAAMAAQD///z/+v/5//j/+f/6//z///8BAAMABgAHAAcABwAGAAQAAQD///3/+//5//n/+f/6//z///8AAAMABQAHAAcABwAGAAQAAgAAAP3/+//5//n/+f/6//z//v8AAAIABQAHAAcABwAGAAUAAgAAAP7/+//6//n/+f/5//v//v8AAAIABAAGAAcABwAHAAUAAwAAAP7//P/6//n/+f/5//v//f8AAAEABAAGAAcABwAHAAUAAwABAP///P/6//n/+f/5//r//f///wEABAAGAAcACAAHAAYABAABAP///f/6//n/+f/5//r//P///wEAAwAFAAcABwAHAAYABAABAAAA/f/7//n/+f/5//r//P/+/wAAAwAFAAcABwAHAAYABAACAAAA/v/7//n/+f/5//r/+//+/wAAAgAFAAYABwAHAAcABQACAAAA/v/8//r/+f/5//n/+//9/wAAAgAEAAYABwAHAAcABQADAAAA///8//r/+f/5//n/+//9////AQAEAAYABwAHAAcABgADAAEA///8//r/+f/4//n/+v/8////AQADAAYABwAHAAcABgAEAAEA///9//v/+f/5//n/+v/8////AAADAAUABwAHAAcABgAEAAIAAAD9//v/+f/5//n/+v/8//7/AAACAAUABwAHAAcABgAFAAIAAAD+//v/+v/5//n/+f/7//7/AAACAAQABgAHAAcABwAFAAMAAAD+//z/+v/5//n/+f/7//3/AAABAAQABgAHAAcABwAFAAMAAQD///z/+v/5//n/+f/6//3///8BAAQABgAHAAgABwAGAAQAAQD///3/+v/5//n/+f/6//z///8BAAMABQAHAAcABwAGAAQAAQAAAP3/+//5//n/+f/6//z//v8AAAMABQAHAAcABwAGAAQAAgAAAP7/+//5//n/+f/6//v//v8AAAIABQAGAAcABwAHAAUAAgAAAP7//P/6//n/+f/5//v//f8AAAIABAAGAAcABwAHAAUAAwAAAP///P/6//n/+f/5//v//f///wEABAAGAAcABwAHAAYAAwABAP///P/6//n/+P/5//r//P///wEAAwAGAAcABwAHAAYABAABAP///f/7//n/+f/5//r//P///wAAAwAFAAcABwAHAAYABAACAAAA/f/7//n/+f/5//r//P/+/wAAAgAFAAcABwAHAAYABQACAAAA/v/7//r/+f/5//n/+//+/wAAAgAEAAYABwAHAAcABQADAAAA/v/8//r/+f/5//n/+//9/wAAAQAEAAYABwAHAAcABQADAAEA///8//r/+f/5//n/+v/9////AQAEAAYABwAIAAcABgAEAAEA///9//r/+f/5//n/+v/8////AQADAAUABwAHAAcABgAEAAEAAAD9//v/+f/5//n/+v/8//7/AAADAAUABwAHAAcABgAEAAIAAAD+//v/+f/5//n/+v/7//7/AAACAAUABgAHAAcABwAFAAIAAAD+//z/+v/5//n/+f/7//3/AAACAAQABgAHAAcABwAFAAMAAAD///z/+v/5//n/+f/7//3///8BAAQABgAHAAcABwAGAAMAAQD///z/+v/5//j/+f/6//z///8BAAMABgAHAAcABwAGAAQAAQD///3/+//5//n/+f/6//z///8AAAMABQAHAAcABwAGAAQAAgAAAP3/+//5//n/+f/6//z//v8AAAIABQAHAAcABwAGAAUAAgAAAP7/+//6//n/+f/5//v//v8AAAIABAAGAAcABwAHAAUAAwAAAP7//P/6//n/+f/5//v//f8AAAEABAAGAAcABwAHAAUAAwABAP///P/6//n/+f/5//r//f///wEABAAGAAcACAAHAAYABAABAP///f/6//n/+f/5//r//P///wEAAwAFAAcABwAHAAYABAABAAAA/f/7//n/+f/5//r//P/+/wAAAwAFAAcABwAHAAYABAACAAAA/v/7//n/+f/5//r/+//+/wAAAgAFAAYABwAHAAcABQACAAAA/v/8//r/+f/5//n/+//9/wAAAgAEAAYABwAHAAcABQADAAAA///8//r/+f/5//n/+//9////AQAEAAYABwAHAAcABgADAAEA///8//r/+f/4//n/+v/8////AQADAAYABwAHAAcABgAEAAEA///9//v/+f/5//n/+v/8////AAADAAUABwAHAAcABgAEAAIAAAD9//v/+f/5//n/+v/8//7/AAACAAUABwAHAAcABgAFAAIAAAD+//v/+v/5//n/+f/7//7/AAACAAQABgAHAAcABwAFAAMAAAD+//z/+v/5//n/+f/7//3/AAABAAQABgAHAAcABwAFAAMAAQD///z/+v/5//n/+f/6//3///8BAAQABgAHAAgABwAGAAQAAQD///3/+v/5//n/+f/6//z///8BAAMABQAHAAcABwAGAAQAAQAAAP3/+//5//n/+f/6//z//v8AAAMABQAHAAcABwAGAAQAAgAAAP7/+//5//n/+f/6//v//v8AAAIABQAGAAcABwAHAAUAAgAAAP7//P/6//n/+f/5//v//f8AAAIABAAGAAcABwAHAAUAAwAAAP///P/6//n/+f/5//v//f///wEABAAGAAcABwAHAAYAAwABAP///P/6//n/+P/5//r//P///wEAAwAGAAcABwAHAAYABAABAP///f/7//n/+f/5//r//P///wAAAwAFAAcABwAHAAYABAACAAAA/f/7//n/+f/5//r//P/+/wAAAgAFAAcABwAHAAYABQACAAAA/v/7//r/+f/5//n/+//+/wAAAgAEAAYABwAHAAcABQADAAAA/v/8//r/+f/5//n/+//9/wAAAQAEAAYABwAHAAcABQADAAEA///8//r/+f/5//n/+v/9////AQAEAAYABwAIAAcABgAEAAEA///9//r/+f/5//n/+v/8////AQADAAUABwAHAAcABgAEAAEAAAD9//v/+f/5//n/+v/8//7/AAADAAUABwAHAAcABgAEAAIAAAD+//v/+f/5//n/+v/7//7/AAACAAUABgAHAAcABwAFAAIAAAD+//z/+v/5//n/+f/7//3/AAACAAQABgAHAAcABwAFAAMAAAD///z/+v/5//n/+f/7//3///8BAAQABgAHAAcABwAGAAMAAQD///z/+v/5//j/+f/6//z///8BAAMABgAHAAcABwAGAAQAAQD///3/+//5//n/+f/6//z///8AAAMABQAHAAcABwAGAAQAAgAAAP3/+//5//n/+f/6//z//v8AAAIABQAHAAcABwAGAAUAAgAAAP7/+//6//n/+f/5//v//v8AAAIABAAGAAcABwAHAAUAAwAAAP7//P/6//n/+f/5//v//f8AAAEABAAGAAcABwAHAAUAAwABAP///P/6//n/+f/5//r//f///wEABAAGAAcACAAHAAYABAABAP///f/6//n/+f/5//r//P///wEAAwAFAAcABwAHAAYABAABAAAA/f/7//n/+f/5//r//P/+/wAAAwAFAAcABwAHAAYABAACAAAA/v/7//n/+f/5//r/+//+/wAAAgAFAAYABwAHAAcABQACAAAA/v/8//r/+f/5//n/+//9/wAAAgAEAAYABwAHAAcABQADAAAA///8//r/+f/5//n/+//9////AQAEAAYABwAHAAcABgADAAEA///8//r/+f/4//n/+v/8////AQADAAYABwAHAAcABgAEAAEA///9//v/+f/5//n/+v/8////AAADAAUABwAHAAcABgAEAAIAAAD9//v/+f/5//n/+v/8//7/AAACAAUABwAHAAcABgAFAAIAAAD+//v/+v/5//n/+f/7//7/AAACAAQABgAHAAcABwAFAAMAAAD+//z/+v/5//n/+f/7//3/AAABAAQABgAHAAcABwAFAAMAAQD///z/+v/5//n/+f/6//3///8BAAQABgAHAAgABwAGAAQAAQD///3/+v/5//n/+f/6//z///8BAAMABQAHAAcABwAGAAQAAQAAAP3/+//5//n/+f/6//z//v8AAAMABQAHAAcABwAGAAQAAgAAAP7/+//5//n/+f/6//v//v8AAAIABQAGAAcABwAHAAUAAgAAAP7//P/6//n/+f/5//v//f8AAAIABAAGAAcABwAHAAUAAwAAAP///P/6//n/+f/5//v//f///wEABAAGAAcABwAHAAYAAwABAP///P/6//n/+P/5//r//P///wEAAwAGAAcABwAHAAYABAABAP///f/7//n/+f/5//r//P///wAAAwAFAAcABwAHAAYABAACAAAA/f/7//n/+f/5//r//P/+/wAAAgAFAAcABwAHAAYABQACAAAA/v/7//r/+f/5//n/+//+/wAAAgAEAAYABwAHAAcABQADAAAA/v/8//r/+f/5//n/+//9/wAAAQAEAAYABwAHAAcABQADAAEA///8//r/+f/5//n/+v/9////AQAEAAYABwAIAAcABgAEAAEA///9//r/+f/5//n/+v/8////AQADAAUABwAHAAcABgAEAAEAAAD9//v/+f/5//n/+v/8//7/AAADAAUABwAHAAcABgAEAAIAAAD+//v/+f/5//n/+v/7//7/AAACAAUABgAHAAcABwAFAAIAAAD+//z/+v/5//n/+f/7//3/AAACAAQABgAHAAcABwAFAAMAAAD///z/+v/5//n/+f/7//3///8BAAQABgAHAAcABwAGAAMAAQD///z/+v/5//j/+f/6//z///8BAAMABgAHAAcABwAGAAQAAQD///3/+//5//n/+f/6//z///8AAAMABQAHAAcABwAGAAQAAgAAAP3/+//5//n/+f/6//z//v8AAAIABQAHAAcABwAGAAUAAgAAAP7/+//6//n/+f/5//v//v8AAAIABAAGAAcABwAHAAUAAwAAAP7//P/6//n/+f/5//v//f8AAAEABAAGAAcABwAHAAUAAwABAP///P/6//n/+f/5//r//f///wEABAAGAAcACAAHAAYABAABAP///f/6//n/+f/5//r//P///wEAAwAFAAcABwAHAAYABAABAAAA/f/7//n/+f/5//r//P/+/wAAAwAFAAcABwAHAAYABAACAAAA/v/7//n/+f/5//r/+//+/wAAAgAFAAYABwAHAAcABQACAAAA/v/8//r/+f/5//n/+//9/wAAAgAEAAYABwAHAAcABQADAAAA///8//r/+f/5//n/+//9////AQAEAAYABwAHAAcABgADAAEA///8//r/+f/4//n/+v/8////AQADAAYABwAHAAcABgAEAAEA///9//v/+f/5//n/+v/8////AAADAAUABwAHAAcABgAEAAIAAAD9//v/+f/5//n/+v/8//7/AAACAAUABwAHAAcABgAFAAIAAAD+//v/+v/5//n/+f/7//7/AAACAAQABgAHAAcABwAFAAMAAAD+//z/+v/5//n/+f/7//3/AAABAAQABgAHAAcABwAFAAMAAQD///z/+v/5//n/+f/6//3///8BAAQABgAHAAgABwAGAAQAAQD///3/+v/5//n/+f/6//z///8BAAMABQAHAAcABwAGAAQAAQAAAP3/+//5//n/+f/6//z//v8AAAMABQAHAAcABwAGAAQAAgAAAP7/+//5//n/+f/6//v//v8AAAIABQAGAAcABwAHAAUAAgAAAP7//P/6//n/+f/5//v//f8AAAIABAAGAAcABwAHAAUAAwAAAP///P/6//n/+f/5//v//f///wEABAAGAAcABwAHAAYAAwABAP///P/6//n/+P/5//r//P///wEAAwAGAAcABwAHAAYABAABAP///f/7//n/+f/5//r//P///wAAAwAFAAcABwAHAAYABAACAAAA/f/7//n/+f/5//r//P/+/wAAAgAFAAcABwAHAAYABQACAAAA/v/7//r/+f/5//n/+//+/wAAAgAEAAYABwAHAAcABQADAAAA/v/8//r/+f/5//n/+//9/wAAAQAEAAYABwAHAAcABQADAAEA///8//r/+f/5//n/+v/9////AQAEAAYABwAIAAcABgAEAAEA///9//r/+f/5//n/+v/8////AQADAAUABwAHAAcABgAEAAEAAAD9//v/+f/5//n/+v/8//7/AAADAAUABwAHAAcABgAEAAIAAAD+//v/+f/5//n/+v/7//7/AAACAAUABgAHAAcABwAFAAIAAAD+//z/+v/5//n/+f/7//3/AAACAAQABgAHAAcABwAFAAMAAAD///z/+v/5//n/+f/7//3///8BAAQABgAHAAcABwAGAAMAAQD///z/+v/5//j/+f/6//z///8BAAMABgAHAAcABwAGAAQAAQD///3/+//5//n/+f/6//z///8AAAMABQAHAAcABwAGAAQAAgAAAP3/+//5//n/+f/6//z//v8AAAIABQAHAAcABwAGAAUAAgAAAP7/+//6//n/+f/5//v//v8AAAIABAAGAAcABwAHAAUAAwAAAP7//P/6//n/+f/5//v//f8AAAEABAAGAAcABwAHAAUAAwABAP///P/6//n/+f/5//r//f///wEABAAGAAcACAAHAAYABAABAP///f/6//n/+f/5//r//P///wEAAwAFAAcABwAHAAYABAABAAAA/f/7//n/+f/5//r//P/+/wAAAwAFAAcABwAHAAYABAACAAAA/v/7//n/+f/5//r/+//+/wAAAgAFAAYABwAHAAcABQACAAAA/v/8//r/+f/5//n/+//9/wAAAgAEAAYABwAHAAcABQADAAAA///8//r/+f/5//n/+//9////AQAEAAYABwAHAAcABgADAAEA///8//r/+f/4//n/+v/8////AQADAAYABwAHAAcABgAEAAEA///9//v/+f/5//n/+v/8////AAADAAUABwAHAAcABgAEAAIAAAD9//v/+f/5//n/+v/8//7/AAACAAUABwAHAAcABgAFAAIAAAD+//v/+v/5//n/+f/7//7/AAACAAQABgAHAAcABwAFAAMAAAD+//z/+v/5//n/+f/7//3/AAABAAQABgAHAAcABwAFAAMAAQD///z/+v/5//n/+f/6//3///8BAAQABgAHAAgABwAGAAQAAQD///3/+v/5//n/+f/6//z///8BAAMABQAHAAcABwAGAAQAAQAAAP3/+//5//n/+f/6//z//v8AAAMABQAHAAcABwAGAAQAAgAAAP7/+//5//n/+f/6//v//v8AAAIABQAGAAcABwAHAAUAAgAAAP7//P/6//n/+f/5//v//f8AAAIABAAGAAcABwAHAAUAAwAAAP///P/6//n/+f/5//v//f///wEABAAGAAcABwAHAAYAAwABAP///P/6//n/+P/5//r//P///wEAAwAGAAcABwAHAAYABAABAP///f/7//n/+f/5//r//P///wAAAwAFAAcABwAHAAYABAACAAAA/f/7//n/+f/5//r//P/+/wAAAgAFAAcABwAHAAYABQACAAAA/v/7//r/+f/5//n/+//+/wAAAgAEAAYABwAHAAcABQADAAAA/v/8//r/+f/5//n/+//9/wAAAQAEAAYABwAHAAcABQADAAEA///8//r/+f/5//n/+v/9////AQAEAAYABwAIAAcABgAEAAEA///9//r/+f/5//n/+v/8////AQADAAUABwAHAAcABgAEAAEAAAD9//v/+f/5//n/+v/8//7/AAADAAUABwAHAAcABgAEAAIAAAD+//v/+f/5//n/+v/7//7/AAACAAUABgAHAAcABwAFAAIAAAD+//z/+v/5//n/+f/7//3/AAACAAQABgAHAAcABwAFAAMAAAD///z/+v/5//n/+f/7//3///8BAAQABgAHAAcABwAGAAMAAQD///z/+v/5//j/+f/6//z///8BAAMABgAHAAcABwAGAAQAAQD///3/+//5//n/+f/6//z///8AAAMABQAHAAcABwAGAAQAAgAAAP3/+//5//n/+f/6//z//v8AAAIABQAHAAcABwAGAAUAAgAAAP7/+//6//n/+f/5//v//v8AAAIABAAGAAcABwAHAAUAAwAAAP7//P/6//n/+f/5//v//f8AAAEABAAGAAcABwAHAAUAAwABAP///P/6//n/+f/5//r//f///wEABAAGAAcACAAHAAYABAABAP///f/6//n/+f/5//r//P///wEAAwAFAAcABwAHAAYABAABAAAA/f/7//n/+f/5//r//P/+/wAAAwAFAAcABwAHAAYABAACAAAA/v/7//n/+f/5//r/+//+/wAAAgAFAAYABwAHAAcABQACAAAA/v/8//r/+f/5//n/+//9/wAAAgAEAAYABwAHAAcABQADAAAA///8//r/+f/5//n/+//9////AQAEAAYABwAHAAcABgADAAEA///8//r/+f/4//n/+v/8////AQADAAYABwAHAAcABgAEAAEA///9//v/+f/5//n/+v/8////AAADAAUABwAHAAcABgAEAAIAAAD9//v/+f/5//n/+v/8//7/AAACAAUABwAHAAcABgAFAAIAAAD+//v/+v/5//n/+f/7//7/AAACAAQABgAHAAcABwAFAAMAAAD+//z/+v/5//n/+f/7//3/AAABAAQABgAHAAcABwAFAAMAAQD///z/+v/5//n/+f/6//3///8BAAQABgAHAAgABwAGAAQAAQD///3/+v/5//n/+f/6//z///8BAAMABQAHAAcABwAGAAQAAQAAAP3/+//5//n/+f/6//z//v8AAAMABQAHAAcABwAGAAQAAgAAAP7/+//5//n/+f/6//v//v8AAAIABQAGAAcABwAHAAUAAgAAAP7//P/6//n/+f/5//v//f8AAAIABAAGAAcABwAHAAUAAwAAAP///P/6//n/+f/5//v//f///wEABAAGAAcABwAHAAYAAwABAP///P/6//n/+P/5//r//P///wEAAwAGAAcABwAHAAYABAABAP///f/7//n/+f/5//r//P///wAAAwAFAAcABwAHAAYABAACAAAA/f/7//n/+f/5//r//P/+/wAAAgAFAAcABwAHAAYABQACAAAA/v/7//r/+f/5//n/+//+/wAAAgAEAAYABwAHAAcABQADAAAA/v/8//r/+f/5//n/+//9/wAAAQAEAAYABwAHAAcABQADAAEA///8//r/+f/5//n/+v/9////AQAEAAYABwAIAAcABgAEAAEA///9//r/+f/5//n/+v/8////AQADAAUABwAHAAcABgAEAAEAAAD9//v/+f/5//n/+v/8//7/AAADAAUABwAHAAcABgAEAAIAAAD+//v/+f/5//n/+v/7//7/AAACAAUABgAHAAcABwAFAAIAAAD+//z/+v/5//n/+f/7//3/AAACAAQABgAHAAcABwAFAAMAAAD///z/+v/5//n/+f/7//3///8BAAQABgAHAAcABwAGAAMAAQD///z/+v/5//j/+f/6//z///8BAAMABgAHAAcABwAGAAQAAQD///3/+//5//n/+f/6//z///8AAAMABQAHAAcABwAGAAQAAgAAAP3/+//5//n/+f/6//z//v8AAAIABQAHAAcABwAGAAUAAgAAAP7/+//6//n/+f/5//v//v8AAAIABAAGAAcABwAHAAUAAwAAAP7//P/6//n/+f/5//v//f8AAAEABAAGAAcABwAHAAUAAwABAP///P/6//n/+f/5//r//f///wEABAAGAAcACAAHAAYABAABAP///f/6//n/+f/5//r//P///wEAAwAFAAcABwAHAAYABAABAAAA/f/7//n/+f/5//r//P/+/wAAAwAFAAcABwAHAAYABAACAAAA/v/7//n/+f/5//r/+//+/wAAAgAFAAYABwAHAAcABQACAAAA/v/8//r/+f/5//n/+//9/wAAAgAEAAYABwAHAAcABQADAAAA///8//r/+f/5//n/+//9////AQAEAAYABwAHAAcABgADAAEA///8//r/+f/4//n/+v/8////AQADAAYABwAHAAcABgAEAAEA///9//v/+f/5//n/+v/8////AAADAAUABwAHAAcABgAEAAIAAAD9//v/+f/5//n/+v/8//7/AAACAAUABwAHAAcABgAFAAIAAAD+//v/+v/5//n/+f/7//7/AAACAAQABgAHAAcABwAFAAMAAAD+//z/+v/5//n/+f/7//3/AAABAAQABgAHAAcABwAFAAMAAQD///z/+v/5//n/+f/6//3///8BAAQABgAHAAgABwAGAAQAAQD///3/+v/5//n/+f/6//z///8BAAMABQAHAAcABwAGAAQAAQAAAP3/+//5//n/+f/6//z//v8AAAMABQAHAAcABwAGAAQAAgAAAP7/+//5//n/+f/6//v//v8AAAIABQAGAAcABwAHAAUAAgAAAP7//P/6//n/+f/5//v//f8AAAIABAAGAAcABwAHAAUAAwAAAP///P/6//n/+f/5//v//f///wEABAAGAAcABwAHAAYAAwABAP///P/6//n/+P/5//r//P///wEAAwAGAAcABwAHAAYABAABAP///f/7//n/+f/5//r//P///wAAAwAFAAcABwAHAAYABAACAAAA/f/7//n/+f/5//r//P/+/wAAAgAFAAcABwAHAAYABQACAAAA/v/7//r/+f/5//n/+//+/wAAAgAEAAYABwAHAAcABQADAAAA/v/8//r/+f/5//n/+//9/wAAAQAEAAYABwAHAAcABQADAAEA///8//r/+f/5//n/+v/9////AQAEAAYABwAIAAcABgAEAAEA///9//r/+f/5//n/+v/8////AQADAAUABwAHAAcABgAEAAEAAAD9//v/+f/5//n/+v/8//7/AAADAAUABwAHAAcABgAEAAIAAAD+//v/+f/5//n/+v/7//7/AAACAAUABgAHAAcABwAFAAIAAAD+//z/+v/5//n/+f/7//3/AAACAAQABgAHAAcABwAFAAMAAAD///z/+v/5//n/+f/7//3///8BAAQABgAHAAcABwAGAAMAAQD///z/+v/5//j/+f/6//z///8BAAMABgAHAAcABwAGAAQAAQD///3/+//5//n/+f/6//z///8AAAMABQAHAAcABwAGAAQAAgAAAP3/+//5//n/+f/6//z//v8AAAIABQAHAAcABwAGAAUAAgAAAP7/+//6//n/+f/5//v//v8AAAIABAAGAAcABwAHAAUAAwAAAP7//P/6//n/+f/5//v//f8AAAEABAAGAAcABwAHAAUAAwABAP///P/6//n/+f/5//r//f///wEABAAGAAcACAAHAAYABAABAP///f/6//n/+f/5//r//P///wEAAwAFAAcABwAHAAYABAABAAAA/f/7//n/+f/5//r//P/+/wAAAwAFAAcABwAHAAYABAACAAAA/v/7//n/+f/5//r/+//+/wAAAgAFAAYABwAHAAcABQACAAAA/v/8//r/+f/5//n/+//9/wAAAgAEAAYABwAHAAcABQADAAAA///8//r/+f/5//n/+//9////AQAEAAYABwAHAAcABgADAAEA///8//r/+f/4//n/+v/8////AQADAAYABwAHAAcABgAEAAEA///9//v/+f/5//n/+v/8////AAADAAUABwAHAAcABgAEAAIAAAD9//v/+f/5//n/+v/8//7/AAACAAUABwAHAAcABgAFAAIAAAD+//v/+v/5//n/+f/7//7/AAACAAQABgAHAAcABwAFAAMAAAD+//z/+v/5//n/+f/7//3/AAABAAQABgAHAAcABwAFAAMAAQD///z/+v/5//n/+f/6//3///8BAAQABgAHAAgABwAGAAQAAQD///3/+v/5//n/+f/6//z///8BAAMABQAHAAcABwAGAAQAAQAAAP3/+//5//n/+f/6//z//v8AAAMABQAHAAcABwAGAAQAAgAAAP7/+//5//n/+f/6//v//v8AAAIABQAGAAcABwAHAAUAAgAAAP7//P/6//n/+f/5//v//f8AAAIABAAGAAcABwAHAAUAAwAAAP///P/6//n/+f/5//v//f///wEABAAGAAcABwAHAAYAAwABAP///P/6//n/+P/5//r//P///wEAAwAGAAcABwAHAAYABAABAP///f/7//n/+f/5//r//P///wAAAwAFAAcABwAHAAYABAACAAAA/f/7//n/+f/5//r//P/+/wAAAgAFAAcABwAHAAYABQACAAAA/v/7//r/+f/5//n/+//+/wAAAgAEAAYABwAHAAcABQADAAAA/v/8//r/+f/5//n/+//9/wAAAQAEAAYABwAHAAcABQADAAEA///8//r/+f/5//n/+v/9////AQAEAAYABwAIAAcABgAEAAEA///9//r/+f/5//n/+v/8////AQADAAUABwAHAAcABgAEAAEAAAD9//v/+f/5//n/+v/8//7/AAADAAUABwAHAAcABgAEAAIAAAD+//v/+f/5//n/+v/7//7/AAACAAUABgAHAAcABwAFAAIAAAD+//z/+v/5//n/+f/7//3/AAACAAQABgAHAAcABwAFAAMAAAD///z/+v/5//n/+f/7//3///8BAAQABgAHAAcABwAGAAMAAQD///z/+v/5//j/+f/6//z///8BAAMABgAHAAcABwAGAAQAAQD///3/+//5//n/+f/6//z///8AAAMABQAHAAcABwAGAAQAAgAAAP3/+//5//n/+f/6//z//v8AAAIABQAHAAcABwAGAAUAAgAAAP7/+//6//n/+f/5//v//v8AAAIABAAGAAcABwAHAAUAAwAAAP7//P/6//n/+f/5//v//f8AAAEABAAGAAcABwAHAAUAAwABAP///P/6//n/+f/5//r//f///wEABAAGAAcACAAHAAYABAABAP///f/6//n/+f/5//r//P///wEAAwAFAAcABwAHAAYABAABAAAA/f/7//n/+f/5//r//P/+/wAAAwAFAAcABwAHAAYABAACAAAA/v/7//n/+f/5//r/+//+/wAAAgAFAAYABwAHAAcABQACAAAA/v/8//r/+f/5//n/+//9/wAAAgAEAAYABwAHAAcABQADAAAA///8//r/+f/5//n/+//9////AQAEAAYABwAHAAcABgADAAEA///8//r/+f/4//n/+v/8////AQADAAYABwAHAAcABgAEAAEA///9//v/+f/5//n/+v/8////AAADAAUABwAHAAcABgAEAAIAAAD9//v/+f/5//n/+v/8//7/AAACAAUABwAHAAcABgAFAAIAAAD+//v/+v/5//n/+f/7//7/AAACAAQABgAHAAcABwAFAAMAAAD+//z/+v/5//n/+f/7//3/AAABAAQABgAHAAcABwAFAAMAAQD///z/+v/5//n/+f/6//3///8BAAQABgAHAAgABwAGAAQAAQD///3/+v/5//n/+f/6//z///8BAAMABQAHAAcABwAGAAQAAQAAAP3/+//5//n/+f/6//z//v8AAAMABQAHAAcABwAGAAQAAgAAAP7/+//5//n/+f/6//v//v8AAAIABQAGAAcABwAHAAUAAgAAAP7//P/6//n/+f/5//v//f8AAAIABAAGAAcABwAHAAUAAwAAAP///P/6//n/+f/5//v//f///wEABAAGAAcABwAHAAYAAwABAP///P/6//n/+P/5//r//P///wEAAwAGAAcABwAHAAYABAABAP///f/7//n/+f/5//r//P///wAAAwAFAAcABwAHAAYABAACAAAA/f/7//n/+f/5//r//P/+/wAAAgAFAAcABwAHAAYABQACAAAA/v/7//r/+f/5//n/+//+/wAAAgAEAAYABwAHAAcABQADAAAA/v/8//r/+f/5//n/+//9/wAAAQAEAAYABwAHAAcABQADAAEA///8//r/+f/5//n/+v/9////AQAEAAYABwAIAAcABgAEAAEA///9//r/+f/5//n/+v/8////AQADAAUABwAHAAcABgAEAAEAAAD9//v/+f/5//n/+v/8//7/AAADAAUABwAHAAcABgAEAAIAAAD+//v/+f/5//n/+v/7//7/AAACAAUABgAHAAcABwAFAAIAAAD+//z/+v/5//n/+f/7//3/AAACAAQABgAHAAcABwAFAAMAAAD///z/+v/5//n/+f/7//3///8BAAQABgAHAAcABwAGAAMAAQD///z/+v/5//j/+f/6//z///8BAAMABgAHAAcABwAGAAQAAQD///3/+//5//n/+f/6//z///8AAAMABQAHAAcABwAGAAQAAgAAAP3/+//5//n/+f/6//z//v8AAAIABQAHAAcABwAGAAUAAgAAAP7/+//6//n/+f/5//v//v8AAAIABAAGAAcABwAHAAUAAwAAAP7//P/6//n/+f/5//v//f8AAAEABAAGAAcABwAHAAUAAwABAP///P/6//n/+f/5//r//f///wEABAAGAAcACAAHAAYABAABAP///f/6//n/+f/5//r//P///wEAAwAFAAcABwAHAAYABAABAAAA/f/7//n/+f/5//r//P/+/wAAAwAFAAcABwAHAAYABAACAAAA/v/7//n/+f/5//r/+//+/wAAAgAFAAYABwAHAAcABQACAAAA/v/8//r/+f/5//n/+//9/wAAAgAEAAYABwAHAAcABQADAAAA///8//r/+f/5//n/+//9////AQAEAAYABwAHAAcABgADAAEA///8//r/+f/4//n/+v/8////AQADAAYABwAHAAcABgAEAAEA///9//v/+f/5//n/+v/8////AAADAAUABwAHAAcABgAEAAIAAAD9//v/+f/5//n/+v/8//7/AAACAAUABwAHAAcABgAFAAIAAAD+//v/+v/5//n/+f/7//7/AAACAAQABgAHAAcABwAFAAMAAAD+//z/+v/5//n/+f/7//3/AAABAAQABgAHAAcABwAFAAMAAQD///z/+v/5//n/+f/6//3///8BAAQABgAHAAgABwAGAAQAAQD///3/+v/5//n/+f/6//z///8BAAMABQAHAAcABwAGAAQAAQAAAP3/+//5//n/+f/6//z//v8AAAMABQAHAAcABwAGAAQAAgAAAP7/+//5//n/+f/6//v//v8AAAIABQAGAAcABwAHAAUAAgAAAP7//P/6//n/+f/5//v//f8AAAIABAAGAAcABwAHAAUAAwAAAP///P/6//n/+f/5//v//f///wEABAAGAAcABwAHAAYAAwABAP///P/6//n/+P/5//r//P///wEAAwAGAAcABwAHAAYABAABAP///f/7//n/+f/5//r//P///wAAAwAFAAcABwAHAAYABAACAAAA/f/7//n/+f/5//r//P/+/wAAAgAFAAcABwAHAAYABQACAAAA/v/7//r/+f/5//n/+//+/wAAAgAEAAYABwAHAAcABQADAAAA/v/8//r/+f/5//n/+//9/wAAAQAEAAYABwAHAAcABQADAAEA///8//r/+f/5//n/+v/9////AQAEAAYABwAIAAcABgAEAAEA///9//r/+f/5//n/+v/8////AQADAAUABwAHAAcABgAEAAEAAAD9//v/+f/5//n/+v/8//7/AAADAAUABwAHAAcABgAEAAIAAAD+//v/+f/5//n/+v/7//7/AAACAAUABgAHAAcABwAFAAIAAAD+//z/+v/5//n/+f/7//3/AAACAAQABgAHAAcABwAFAAMAAAD///z/+v/5//n/+f/7//3///8BAAQABgAHAAcABwAGAAMAAQD///z/+v/5//j/+f/6//z///8BAAMABgAHAAcABwAGAAQAAQD///3/+//5//n/+f/6//z///8AAAMABQAHAAcABwAGAAQAAgAAAP3/+//5//n/+f/6//z//v8AAAIABQAHAAcABwAGAAUAAgAAAP7/+//6//n/+f/5//v//v8AAAIABAAGAAcABwAHAAUAAwAAAP7//P/6//n/+f/5//v//f8AAAEABAAGAAcABwAHAAUAAwABAP///P/6//n/+f/5//r//f///wEABAAGAAcACAAHAAYABAABAP///f/6//n/+f/5//r//P///wEAAwAFAAcABwAHAAYABAABAAAA/f/7//n/+f/5//r//P/+/wAAAwAFAAcABwAHAAYABAACAAAA/v/7//n/+f/5//r/+//+/wAAAgAFAAYABwAHAAcABQACAAAA/v/8//r/+f/5//n/+//9/wAAAgAEAAYABwAHAAcABQADAAAA///8//r/+f/5//n/+//9////AQAEAAYABwAHAAcABgADAAEA///8//r/+f/4//n/+v/8////AQADAAYABwAHAAcABgAEAAEA///9//v/+f/5//n/+v/8////AAADAAUABwAHAAcABgAEAAIAAAD9//v/+f/5//n/+v/8//7/AAACAAUABwAHAAcABgAFAAIAAAD+//v/+v/5//n/+f/7//7/AAACAAQABgAHAAcABwAFAAMAAAD+//z/+v/5//n/+f/7//3/AAABAAQABgAHAAcABwAFAAMAAQD///z/+v/5//n/+f/6//3///8BAAQABgAHAAgABwAGAAQAAQD///3/+v/5//n/+f/6//z///8BAAMABQAHAAcABwAGAAQAAQAAAP3/+//5//n/+f/6//z//v8AAAMABQAHAAcABwAGAAQAAgAAAP7/+//5//n/+f/6//v//v8AAAIABQAGAAcABwAHAAUAAgAAAP7//P/6//n/+f/5//v//f8AAAIABAAGAAcABwAHAAUAAwAAAP///P/6//n/+f/5//v//f///wEABAAGAAcABwAHAAYAAwABAP///P/6//n/+P/5//r//P///wEAAwAGAAcABwAHAAYABAABAP///f/7//n/+f/5//r//P///wAAAwAFAAcABwAHAAYABAACAAAA/f/7//n/+f/5//r//P/+/wAAAgAFAAcABwAHAAYABQACAAAA/v/7//r/+f/5//n/+//+/wAAAgAEAAYABwAHAAcABQADAAAA/v/8//r/+f/5//n/+//9/wAAAQAEAAYABwAHAAcABQADAAEA///8//r/+f/5//n/+v/9////AQAEAAYABwAIAAcABgAEAAEA///9//r/+f/5//n/+v/8////AQADAAUABwAHAAcABgAEAAEAAAD9//v/+f/5//n/+v/8//7/AAADAAUABwAHAAcABgAEAAIAAAD+//v/+f/5//n/+v/7//7/AAACAAUABgAHAAcABwAFAAIAAAD+//z/+v/5//n/+f/7//3/AAACAAQABgAHAAcABwAFAAMAAAD///z/+v/5//n/+f/7//3///8BAAQABgAHAAcABwAGAAMAAQD///z/+v/5//j/+f/6//z///8BAAMABgAHAAcABwAGAAQAAQD///3/+//5//n/+f/6//z///8AAAMABQAHAAcABwAGAAQAAgAAAP3/+//5//n/+f/6//z//v8AAAIABQAHAAcABwAGAAUAAgAAAP7/+//6//n/+f/5//v//v8AAAIABAAGAAcABwAHAAUAAwAAAP7//P/6//n/+f/5//v//f8AAAEABAAGAAcABwAHAAUAAwABAP///P/6//n/+f/5//r//f///wEABAAGAAcACAAHAAYABAABAP///f/6//n/+f/5//r//P///wEAAwAFAAcABwAHAAYABAABAAAA/f/7//n/+f/5//r//P/+/wAAAwAFAAcABwAHAAYABAACAAAA/v/7//n/+f/5//r/+//+/w==';
+
+let currentSection = null; // 'zh' o 'de'
+let currentCategory = 'frases'; // 'frases' o 'vocabulario'
+let playlistsIndex = [];
+let currentPlaylist = null;
+let voices = [];
+let playing = false;
+let currentItemIndex = 0;
+let phaseTimer = null;
+let countdownInterval = null;
+let hideText = false;
+let orderSwapped = false;
+let loopList = false;
+let pendingSrcAudio = null;
+let pendingTgtAudio = null;
+
+const el = id => document.getElementById(id);
+
+// Elementos <audio> persistentes (ver comentario en el HTML).
+const mainAudioEl = el('mainAudio');
+const keepAliveAudioEl = el('keepAliveAudio');
+
+function startKeepAlive(){
+  try{
+    keepAliveAudioEl.loop = true;
+    if(keepAliveAudioEl.src !== KEEPALIVE_AUDIO_DATA_URI) keepAliveAudioEl.src = KEEPALIVE_AUDIO_DATA_URI;
+    keepAliveAudioEl.play().catch(()=>{});
+  }catch(e){}
+}
+function stopKeepAlive(){
+  try{ keepAliveAudioEl.pause(); }catch(e){}
+}
+
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+// Una lista pertenece al cajón (idioma + categoría) si su idioma 1 o idioma 2
+// es el idioma de esa sección, y su categoría coincide (las listas antiguas
+// sin categoría guardada se consideran "frases" por compatibilidad).
+function belongsToSection(pl, section, category){
+  const cat = pl.category || 'frases';
+  return (pl.source === section || pl.target === section) && cat === category;
+}
+
+function populateLangSelects(){
+  // En cada sección solo tiene sentido combinar el idioma de la sección con español
+  const options = [currentSection, 'es'];
+  ['newSource','newTarget'].forEach(id => {
+    const sel = el(id);
+    sel.innerHTML = '';
+    options.forEach(code => {
+      const opt = document.createElement('option');
+      opt.value = code;
+      opt.textContent = LANGS[code].label;
+      sel.appendChild(opt);
+    });
+  });
+  el('newSource').value = currentSection;
+  el('newTarget').value = 'es';
+}
+
+function updateCategoryUI(){
+  document.querySelectorAll('.cat-tab').forEach(b => {
+    b.classList.toggle('active', b.dataset.cat === currentCategory);
+  });
+  const isVocab = currentCategory === 'vocabulario';
+  el('mainTagline').textContent = isVocab
+    ? 'Palabra, silencio, traducción — a tu ritmo'
+    : 'Escucha, silencio, traducción — a tu ritmo';
+  el('srcInput').placeholder = isVocab ? 'Palabra en idioma 1' : 'Frase en idioma 1';
+  el('tgtInput').placeholder = isVocab ? 'Traducción en idioma 2' : 'Traducción en idioma 2';
+  el('addItemBtn').textContent = isVocab ? 'Añadir palabra' : 'Añadir frase';
+  el('listHeaderTitle').textContent = isVocab ? 'Vocabulario de esta lista' : 'Frases de esta lista';
+  el('bulkHint').textContent = isVocab
+    ? 'O importa varias palabras de golpe, una por línea, con formato "idioma 1 = idioma 2" (sirve para chino: pega el texto sin tener que escribirlo tú):'
+    : 'O importa varias frases de golpe, una por línea, con formato "idioma 1 = idioma 2" (sirve para chino: pega el texto sin tener que escribirlo tú):';
+  el('newName').placeholder = isVocab ? 'Vocabulario de comida' : 'Frases básicas';
+}
+
+function enterSection(section){
+  currentSection = section;
+  currentCategory = 'frases';
+  el('langGate').style.display = 'none';
+  el('appRoot').style.display = 'block';
+  const badge = el('sectionBadge');
+  badge.textContent = SECTION_LABEL[section];
+  badge.className = 'section-badge ' + section;
+  populateLangSelects();
+  updateCategoryUI();
+  loadIndex();
+}
+
+function exitToGate(){
+  stopPlayback();
+  currentPlaylist = null;
+  currentSection = null;
+  el('appRoot').style.display = 'none';
+  el('langGate').style.display = 'flex';
+}
+
+document.querySelectorAll('.gate-btn').forEach(btn => {
+  btn.addEventListener('click', () => enterSection(btn.dataset.lang));
+});
+el('backToGateBtn').addEventListener('click', exitToGate);
+
+document.querySelectorAll('.cat-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if(btn.dataset.cat === currentCategory) return;
+    currentCategory = btn.dataset.cat;
+    updateCategoryUI();
+    renderPlaylistSelect();
+  });
+});
+
+async function loadIndex(){
+  try{
+    const res = await window.storage.get('playlists-index');
+    playlistsIndex = res ? JSON.parse(res.value) : [];
+  }catch(e){
+    playlistsIndex = [];
+  }
+  renderPlaylistSelect();
+}
+
+async function saveIndex(){
+  await window.storage.set('playlists-index', JSON.stringify(playlistsIndex));
+}
+
+function renderPlaylistSelect(){
+  const sel = el('playlistSelect');
+  sel.innerHTML = '';
+  const sectionLists = playlistsIndex.filter(p => belongsToSection(p, currentSection, currentCategory));
+  if(sectionLists.length === 0){
+    el('emptyState').style.display = 'block';
+    el('emptyState').textContent = currentCategory === 'vocabulario'
+      ? 'Todavía no tienes ninguna lista de vocabulario en esta sección. Crea la primera con "+ Nueva lista".'
+      : 'Todavía no tienes ninguna lista de frases en esta sección. Crea la primera con "+ Nueva lista".';
+    el('playerCard').style.display = 'none';
+    el('listCard').style.display = 'none';
+    currentPlaylist = null;
+    return;
+  }
+  el('emptyState').style.display = 'none';
+  sectionLists.forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.id;
+    opt.textContent = `${p.name} (${LANGS[p.source].label} → ${LANGS[p.target].label})`;
+    sel.appendChild(opt);
+  });
+  if(!currentPlaylist || !sectionLists.find(p => p.id === currentPlaylist.id)){
+    sel.value = sectionLists[0].id;
+    loadPlaylist(sectionLists[0].id);
+  } else {
+    sel.value = currentPlaylist.id;
+  }
+}
+
+async function loadPlaylist(id){
+  try{
+    const res = await window.storage.get('playlist:' + id);
+    currentPlaylist = res ? JSON.parse(res.value) : null;
+  }catch(e){
+    currentPlaylist = null;
+  }
+  if(currentPlaylist){
+    let needsSave = false;
+    currentPlaylist.items.forEach(item => {
+      if(!item.id){ item.id = uid(); needsSave = true; }
+    });
+    if(needsSave) await savePlaylist();
+    el('playerCard').style.display = 'block';
+    el('listCard').style.display = 'block';
+    currentItemIndex = 0;
+    stopPlayback();
+    el('pauseSlider').value = currentPlaylist.pauseSeconds || 3;
+    el('pauseOut').textContent = currentPlaylist.pauseSeconds || 3;
+    renderItems();
+    updatePhraseDisplay();
+  }
+}
+
+async function savePlaylist(){
+  if(!currentPlaylist) return;
+  await window.storage.set('playlist:' + currentPlaylist.id, JSON.stringify(currentPlaylist));
+}
+
+el('newListBtn').addEventListener('click', () => {
+  el('newForm').classList.add('open');
+});
+el('cancelNewBtn').addEventListener('click', () => {
+  el('newForm').classList.remove('open');
+});
+
+el('createListBtn').addEventListener('click', async () => {
+  const name = el('newName').value.trim();
+  if(!name){
+    el('newName').style.outline = '2px solid var(--es)';
+    el('newName').placeholder = 'Escribe un nombre primero';
+    return;
+  }
+  const source = el('newSource').value;
+  const target = el('newTarget').value;
+  const category = currentCategory;
+  const id = uid();
+  const newPl = {id, name, source, target, category, pauseSeconds: 3, items: []};
+  await window.storage.set('playlist:' + id, JSON.stringify(newPl));
+  playlistsIndex.push({id, name, source, target, category});
+  await saveIndex();
+  currentPlaylist = newPl;
+  renderPlaylistSelect();
+  el('newForm').classList.remove('open');
+  el('newName').value = '';
+  await loadPlaylist(id);
+});
+
+el('renameListBtn').addEventListener('click', async () => {
+  if(!currentPlaylist) return;
+  const newName = prompt('Nuevo nombre para esta lista:', currentPlaylist.name);
+  if(newName === null) return; // canceló
+  const trimmed = newName.trim();
+  if(!trimmed) return;
+  currentPlaylist.name = trimmed;
+  await savePlaylist();
+  const idxEntry = playlistsIndex.find(p => p.id === currentPlaylist.id);
+  if(idxEntry) idxEntry.name = trimmed;
+  await saveIndex();
+  renderPlaylistSelect();
+});
+
+el('deleteListBtn').addEventListener('click', async () => {
+  if(!currentPlaylist) return;
+  if(!confirm(`¿Eliminar la lista "${currentPlaylist.name}"? Esta acción no se puede deshacer.`)) return;
+  const idToDelete = currentPlaylist.id;
+  const itemsToClean = currentPlaylist.items.slice();
+  playlistsIndex = playlistsIndex.filter(p => p.id !== idToDelete);
+  await saveIndex();
+  await window.storage.delete('playlist:' + idToDelete);
+  for(const item of itemsToClean){
+    if(item.hasSrcAudio) await window.storage.delete(audioKey(idToDelete, item.id, 'src')).catch(()=>{});
+    if(item.hasTgtAudio) await window.storage.delete(audioKey(idToDelete, item.id, 'tgt')).catch(()=>{});
+  }
+  currentPlaylist = null;
+  renderPlaylistSelect();
+});
+
+el('playlistSelect').addEventListener('change', e => {
+  loadPlaylist(e.target.value);
+});
+
+function audioKey(playlistId, itemId, slot){
+  return `audio:${playlistId}:${itemId}:${slot}`;
+}
+
+function renderItems(){
+  const container = el('itemsContainer');
+  container.innerHTML = '';
+  if(!currentPlaylist || currentPlaylist.items.length === 0){
+    container.innerHTML = currentCategory === 'vocabulario'
+      ? '<p class="small-note">Añade tu primera palabra abajo.</p>'
+      : '<p class="small-note">Añade tu primera frase abajo.</p>';
+    return;
+  }
+  currentPlaylist.items.forEach((item, idx) => {
+    const row = document.createElement('div');
+    row.className = 'item-row' + (idx === currentItemIndex && playing ? ' playing' : '');
+    row.innerHTML = `
+      <span class="txt">${escapeHtml(item.source)}</span>
+      <span class="txt tgt">${escapeHtml(item.target)}</span>
+      ${item.hasSrcAudio || item.hasTgtAudio ? '<span class="audio-badge">🎵</span>' : ''}
+      <button data-idx="${idx}" class="playFromBtn" title="Reproducir desde aquí">▶</button>
+      <button data-idx="${idx}" class="deleteItemBtn" title="Eliminar">✕</button>
+    `;
+    container.appendChild(row);
+  });
+  container.querySelectorAll('.deleteItemBtn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const idx = parseInt(btn.dataset.idx);
+      const item = currentPlaylist.items[idx];
+      if(item.hasSrcAudio) await window.storage.delete(audioKey(currentPlaylist.id, item.id, 'src')).catch(()=>{});
+      if(item.hasTgtAudio) await window.storage.delete(audioKey(currentPlaylist.id, item.id, 'tgt')).catch(()=>{});
+      currentPlaylist.items.splice(idx, 1);
+      await savePlaylist();
+      if(currentItemIndex >= currentPlaylist.items.length) currentItemIndex = Math.max(0, currentPlaylist.items.length - 1);
+      renderItems();
+      updatePhraseDisplay();
+    });
+  });
+  container.querySelectorAll('.playFromBtn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      currentItemIndex = parseInt(btn.dataset.idx);
+      stopPlayback();
+      startPlayback();
+    });
+  });
+}
+
+function escapeHtml(s){
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function fileToDataUrl(file){
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result);
+    r.onerror = () => reject(new Error('No se pudo leer el archivo'));
+    r.readAsDataURL(file);
+  });
+}
+
+el('srcAudioInput').addEventListener('change', e => {
+  pendingSrcAudio = e.target.files[0] || null;
+  el('srcAudioName').textContent = pendingSrcAudio ? pendingSrcAudio.name : '';
+});
+el('tgtAudioInput').addEventListener('change', e => {
+  pendingTgtAudio = e.target.files[0] || null;
+  el('tgtAudioName').textContent = pendingTgtAudio ? pendingTgtAudio.name : '';
+});
+
+el('addItemBtn').addEventListener('click', async () => {
+  const src = el('srcInput').value.trim();
+  const tgt = el('tgtInput').value.trim();
+  el('addItemErr').style.display = 'none';
+  if(!src || !tgt){
+    el('addItemErr').textContent = currentCategory === 'vocabulario'
+      ? 'Escribe la palabra en ambos idiomas antes de añadir.'
+      : 'Escribe la frase en ambos idiomas antes de añadir.';
+    el('addItemErr').style.display = 'block';
+    return;
+  }
+  const item = {id: uid(), source: src, target: tgt, hasSrcAudio: false, hasTgtAudio: false};
+  try{
+    if(pendingSrcAudio){
+      const dataUrl = await fileToDataUrl(pendingSrcAudio);
+      await window.storage.set(audioKey(currentPlaylist.id, item.id, 'src'), dataUrl);
+      item.hasSrcAudio = true;
+    }
+    if(pendingTgtAudio){
+      const dataUrl = await fileToDataUrl(pendingTgtAudio);
+      await window.storage.set(audioKey(currentPlaylist.id, item.id, 'tgt'), dataUrl);
+      item.hasTgtAudio = true;
+    }
+  }catch(err){
+    el('addItemErr').textContent = 'No se pudo guardar el audio (puede ser demasiado grande). Se añadió sin audio.';
+    el('addItemErr').style.display = 'block';
+  }
+  currentPlaylist.items.push(item);
+  await savePlaylist();
+  el('srcInput').value = '';
+  el('tgtInput').value = '';
+  el('srcAudioInput').value = '';
+  el('tgtAudioInput').value = '';
+  el('srcAudioName').textContent = '';
+  el('tgtAudioName').textContent = '';
+  pendingSrcAudio = null;
+  pendingTgtAudio = null;
+  renderItems();
+  updatePhraseDisplay();
+  el('srcInput').focus();
+});
+
+function parseBulkLines(raw){
+  const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
+  const parsed = [];
+  lines.forEach(line => {
+    const sep = line.includes('=') ? '=' : (line.includes('|') ? '|' : null);
+    if(!sep) return;
+    const parts = line.split(sep);
+    if(parts.length < 2) return;
+    const source = parts[0].trim();
+    const target = parts.slice(1).join(sep).trim();
+    if(source && target) parsed.push({source, target});
+  });
+  return parsed;
+}
+
+el('bulkAddBtn').addEventListener('click', async () => {
+  const raw = el('bulkInput').value.trim();
+  if(!raw) return;
+  const found = parseBulkLines(raw);
+  if(found.length === 0) return;
+  found.forEach(pair => {
+    currentPlaylist.items.push({id: uid(), source: pair.source, target: pair.target, hasSrcAudio: false, hasTgtAudio: false});
+  });
+  await savePlaylist();
+  el('bulkInput').value = '';
+  renderItems();
+  updatePhraseDisplay();
+});
+
+el('fileImportInput').addEventListener('change', async e => {
+  const file = e.target.files[0];
+  if(!file) return;
+  try{
+    const text = await file.text();
+    const found = parseBulkLines(text);
+    if(found.length === 0){
+      el('addItemErr').textContent = 'No encontré líneas con el formato "idioma 1 = idioma 2" en ese archivo.';
+      el('addItemErr').style.display = 'block';
+    } else {
+      found.forEach(pair => {
+        currentPlaylist.items.push({id: uid(), source: pair.source, target: pair.target, hasSrcAudio: false, hasTgtAudio: false});
+      });
+      await savePlaylist();
+      renderItems();
+      updatePhraseDisplay();
+    }
+  }catch(err){
+    el('addItemErr').textContent = 'No se pudo leer ese archivo.';
+    el('addItemErr').style.display = 'block';
+  }
+  el('fileImportInput').value = '';
+});
+
+el('listHeader').addEventListener('click', () => {
+  const body = el('listBody');
+  const open = body.style.display !== 'none';
+  body.style.display = open ? 'none' : 'block';
+  el('listToggleIcon').textContent = open ? '▸' : '▾';
+});
+
+function loadVoices(){
+  voices = window.speechSynthesis.getVoices();
+}
+window.speechSynthesis.onvoiceschanged = loadVoices;
+loadVoices();
+
+function stripForSpeech(text){
+  return text.replace(/[(（][^)）]*[)）]/g, '').trim();
+}
+
+function pickVoice(langCode){
+  const prefix = langCode.split('-')[0];
+
+  // Para español, prioriza la voz Álvaro si está instalada
+  if(prefix === 'es'){
+    const alvaro = voices.find(v => v.lang && v.lang.startsWith('es') && v.name.includes('Álvaro'))
+      || voices.find(v => v.lang && v.lang.startsWith('es') && v.name.includes('Alvaro'));
+    if(alvaro) return alvaro;
+  }
+
+  return voices.find(v => v.lang === langCode) || voices.find(v => v.lang && v.lang.startsWith(prefix));
+}
+
+function checkVoiceAvailability(){
+  if(!currentPlaylist) return;
+  const missing = [];
+  [currentPlaylist.source, currentPlaylist.target].forEach(code => {
+    if(!pickVoice(LANGS[code].code)) missing.push(LANGS[code].label);
+  });
+  el('voiceNote').textContent = missing.length
+    ? `Tu navegador no tiene voz instalada para: ${missing.join(', ')}. Sube un audio propio para esas frases o esa reproducción sonará en silencio.`
+    : '';
+}
+
+function speak(text, langCode, onEnd){
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = LANGS[langCode].code;
+  const v = pickVoice(utter.lang);
+  if(v) utter.voice = v;
+  utter.rate = parseFloat(el('rateSlider').value);
+  utter.onend = onEnd;
+  utter.onerror = onEnd;
+  window.speechSynthesis.speak(utter);
+}
+
+// Reproduce un segmento (frase/palabra) usando el <audio> persistente cuando
+// hay un archivo propio guardado; si no lo hay, cae en voz sintética (que no
+// sonará con la pantalla apagada — ver nota en la interfaz).
+async function playSegment(text, langCode, hasAudio, itemId, slot, onEnd){
+  updateMediaSessionMetadata(text, LANGS[langCode].label);
+  if(hasAudio){
+    try{
+      const res = await window.storage.get(audioKey(currentPlaylist.id, itemId, slot));
+      if(res && res.value){
+        mainAudioEl.loop = false;
+        mainAudioEl.onended = onEnd;
+        mainAudioEl.onerror = () => speak(text, langCode, onEnd);
+        mainAudioEl.src = res.value;
+        mainAudioEl.play().catch(() => speak(text, langCode, onEnd));
+        return;
+      }
+    }catch(e){}
+  }
+  speak(text, langCode, onEnd);
+}
+
+function updatePhraseDisplay(){
+  if(!currentPlaylist || currentPlaylist.items.length === 0){
+    el('phraseText').textContent = currentCategory === 'vocabulario' ? 'Añade palabras para empezar' : 'Añade frases para empezar';
+    el('progressIndex').textContent = '';
+    return;
+  }
+  el('progressIndex').textContent = `Frase ${currentItemIndex + 1} de ${currentPlaylist.items.length}`;
+  if(!playing){
+    const item = currentPlaylist.items[currentItemIndex];
+    const text = orderSwapped ? item.target : item.source;
+    el('phraseText').textContent = hideText ? '· · ·' : text;
+    el('phraseText').classList.toggle('hidden-text', hideText);
+  }
+  checkVoiceAvailability();
+}
+
+const CIRC = 264;
+function setDial(langKey, fraction){
+  const dial = el('dialLang');
+  dial.className = 'dial-lang ' + langKey;
+  dial.textContent = langKey === 'idle' ? '—' : LANGS[langKey].label.toUpperCase();
+  el('dialProgress').setAttribute('stroke-dashoffset', CIRC - (CIRC * fraction));
+}
+
+function clearTimers(){
+  if(phaseTimer) clearTimeout(phaseTimer);
+  if(countdownInterval) clearInterval(countdownInterval);
+  phaseTimer = null;
+  countdownInterval = null;
+}
+
+// --- Media Session: controles en la pantalla de bloqueo / notificaciones ---
+function updateMediaSessionMetadata(text, langLabel){
+  if(!('mediaSession' in navigator) || !currentPlaylist) return;
+  try{
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: hideText ? '· · ·' : text,
+      artist: langLabel,
+      album: currentPlaylist.name
+    });
+  }catch(e){}
+}
+if('mediaSession' in navigator){
+  navigator.mediaSession.setActionHandler('play', () => { if(!playing) startPlayback(); });
+  navigator.mediaSession.setActionHandler('pause', () => { if(playing){ stopPlayback(); updatePhraseDisplay(); } });
+  navigator.mediaSession.setActionHandler('previoustrack', () => el('prevBtn').click());
+  navigator.mediaSession.setActionHandler('nexttrack', () => el('nextBtn').click());
+}
+
+function stopPlayback(){
+  playing = false;
+  clearTimers();
+  window.speechSynthesis.cancel();
+  try{ mainAudioEl.pause(); }catch(e){}
+  stopKeepAlive();
+  if('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
+  el('playBtn').textContent = '▶';
+  setDial('idle', 0);
+  el('dialCount').textContent = '';
+  renderItems();
+}
+
+function startPlayback(){
+  if(!currentPlaylist || currentPlaylist.items.length === 0) return;
+  playing = true;
+  el('playBtn').textContent = '❙❙';
+  startKeepAlive();
+  if('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
+  runPhase('first');
+}
+
+function runPhase(phase){
+  if(!playing) return;
+  const item = currentPlaylist.items[currentItemIndex];
+  const firstLang = orderSwapped ? currentPlaylist.target : currentPlaylist.source;
+  const secondLang = orderSwapped ? currentPlaylist.source : currentPlaylist.target;
+  const firstText = orderSwapped ? item.target : item.source;
+  const secondText = orderSwapped ? item.source : item.target;
+  const firstHasAudio = orderSwapped ? item.hasTgtAudio : item.hasSrcAudio;
+  const secondHasAudio = orderSwapped ? item.hasSrcAudio : item.hasTgtAudio;
+  const firstSlot = orderSwapped ? 'tgt' : 'src';
+  const secondSlot = orderSwapped ? 'src' : 'tgt';
+
+  renderItems();
+
+  if(phase === 'first'){
+    el('phraseText').textContent = hideText ? '· · ·' : firstText;
+    el('phraseText').classList.toggle('hidden-text', hideText);
+    el('progressIndex').textContent = `Frase ${currentItemIndex + 1} de ${currentPlaylist.items.length}`;
+    setDial(firstLang, 0.15);
+    el('dialCount').textContent = '';
+    playSegment(stripForSpeech(firstText), firstLang, firstHasAudio, item.id, firstSlot, () => { if(playing) runPhase('silence'); });
+  } else if(phase === 'silence'){
+    const pauseSec = parseInt(el('pauseSlider').value);
+    let remaining = pauseSec;
+    setDial('idle', 0);
+    el('dialCount').textContent = remaining;
+    el('phraseText').textContent = hideText ? '· · ·' : '···';
+    updateMediaSessionMetadata('Silencio', currentPlaylist.name);
+    countdownInterval = setInterval(() => {
+      remaining -= 1;
+      if(remaining <= 0){
+        clearInterval(countdownInterval);
+        countdownInterval = null;
+      } else {
+        el('dialCount').textContent = remaining;
+        setDial('idle', (pauseSec - remaining) / pauseSec);
+      }
+    }, 1000);
+    phaseTimer = setTimeout(() => { if(playing) runPhase('second'); }, pauseSec * 1000);
+  } else if(phase === 'second'){
+    el('dialCount').textContent = '';
+    el('phraseText').textContent = hideText ? '· · ·' : secondText;
+    el('phraseText').classList.toggle('hidden-text', hideText);
+    setDial(secondLang, 0.85);
+    playSegment(stripForSpeech(secondText), secondLang, secondHasAudio, item.id, secondSlot, () => { if(playing) runPhase('next'); });
+  } else if(phase === 'next'){
+    setDial('idle', 0);
+    el('dialCount').textContent = '';
+    const isLast = currentItemIndex >= currentPlaylist.items.length - 1;
+    if(isLast){
+      if(loopList){
+        currentItemIndex = 0;
+        phaseTimer = setTimeout(() => { if(playing) runPhase('first'); }, 800);
+      } else {
+        stopPlayback();
+        updatePhraseDisplay();
+      }
+    } else {
+      currentItemIndex += 1;
+      phaseTimer = setTimeout(() => { if(playing) runPhase('first'); }, 800);
+    }
+  }
+}
+
+el('playBtn').addEventListener('click', () => {
+  if(playing){
+    stopPlayback();
+    updatePhraseDisplay();
+  } else {
+    startPlayback();
+  }
+});
+
+el('prevBtn').addEventListener('click', () => {
+  if(!currentPlaylist) return;
+  stopPlayback();
+  currentItemIndex = Math.max(0, currentItemIndex - 1);
+  updatePhraseDisplay();
+});
+
+el('nextBtn').addEventListener('click', () => {
+  if(!currentPlaylist) return;
+  stopPlayback();
+  currentItemIndex = Math.min(currentPlaylist.items.length - 1, currentItemIndex + 1);
+  updatePhraseDisplay();
+});
+
+el('pauseSlider').addEventListener('input', async e => {
+  el('pauseOut').textContent = e.target.value;
+  if(currentPlaylist){
+    currentPlaylist.pauseSeconds = parseInt(e.target.value);
+    await savePlaylist();
+  }
+});
+
+el('rateSlider').addEventListener('input', e => {
+  el('rateOut').textContent = parseFloat(e.target.value).toFixed(1);
+});
+
+el('orderToggle').addEventListener('click', () => {
+  orderSwapped = !orderSwapped;
+  el('orderToggle').classList.toggle('active', orderSwapped);
+  el('orderToggle').textContent = orderSwapped ? 'Orden: 2 → 1' : 'Orden: 1 → 2';
+  if(!playing) updatePhraseDisplay();
+});
+
+el('loopToggle').addEventListener('click', () => {
+  loopList = !loopList;
+  el('loopToggle').classList.toggle('active', loopList);
+});
+
+el('hideToggle').addEventListener('click', () => {
+  hideText = !hideText;
+  el('hideToggle').classList.toggle('active', hideText);
+  updatePhraseDisplay();
+});
+
+el('storageNote').textContent = 'Cada audio que subas debe pesar menos de 5MB, así que va mejor para frases sueltas cortas que para canciones enteras.';
+</script>
+</body>
+</html>
