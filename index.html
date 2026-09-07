@@ -636,33 +636,66 @@ el('createListBtn').addEventListener('click', async () => {
   await loadPlaylist(id);
 });
 
+// Funciona sobre la lista seleccionada en el desplegable, aunque sus datos
+// completos no se hayan podido cargar (lista "atascada"/huérfana) — así
+// siempre se puede renombrar, incluso si currentPlaylist quedó en null.
 el('renameListBtn').addEventListener('click', async () => {
-  if(!currentPlaylist) return;
-  const newName = prompt('Nuevo nombre para esta lista:', currentPlaylist.name);
+  const selectedId = el('playlistSelect').value;
+  if(!selectedId) return;
+  const idxEntry = playlistsIndex.find(p => p.id === selectedId);
+  const isLoaded = currentPlaylist && currentPlaylist.id === selectedId;
+  const currentName = isLoaded ? currentPlaylist.name : (idxEntry ? idxEntry.name : '');
+  const newName = prompt('Nuevo nombre para esta lista:', currentName);
   if(newName === null) return; // canceló
   const trimmed = newName.trim();
   if(!trimmed) return;
-  currentPlaylist.name = trimmed;
-  await savePlaylist();
-  const idxEntry = playlistsIndex.find(p => p.id === currentPlaylist.id);
   if(idxEntry) idxEntry.name = trimmed;
   await saveIndex();
+  if(isLoaded){
+    currentPlaylist.name = trimmed;
+    await savePlaylist();
+  } else {
+    try{
+      const res = await window.storage.get('playlist:' + selectedId);
+      if(res && res.value){
+        const pl = JSON.parse(res.value);
+        pl.name = trimmed;
+        await window.storage.set('playlist:' + selectedId, JSON.stringify(pl));
+      }
+    }catch(e){}
+  }
   renderPlaylistSelect();
 });
 
+// Igual que renombrar: borra la lista seleccionada en el desplegable aunque
+// esté "atascada" y no se haya podido cargar del todo.
 el('deleteListBtn').addEventListener('click', async () => {
-  if(!currentPlaylist) return;
-  if(!confirm(`¿Eliminar la lista "${currentPlaylist.name}"? Esta acción no se puede deshacer.`)) return;
-  const idToDelete = currentPlaylist.id;
-  const itemsToClean = currentPlaylist.items.slice();
-  playlistsIndex = playlistsIndex.filter(p => p.id !== idToDelete);
-  await saveIndex();
-  await window.storage.delete('playlist:' + idToDelete);
-  for(const item of itemsToClean){
-    if(item.hasSrcAudio) await window.storage.delete(audioKey(idToDelete, item.id, 'src')).catch(()=>{});
-    if(item.hasTgtAudio) await window.storage.delete(audioKey(idToDelete, item.id, 'tgt')).catch(()=>{});
+  const selectedId = el('playlistSelect').value;
+  if(!selectedId) return;
+  const idxEntry = playlistsIndex.find(p => p.id === selectedId);
+  const isLoaded = currentPlaylist && currentPlaylist.id === selectedId;
+  const listName = isLoaded ? currentPlaylist.name : (idxEntry ? idxEntry.name : 'esta lista');
+  if(!confirm(`¿Eliminar la lista "${listName}"? Esta acción no se puede deshacer.`)) return;
+
+  let itemsToClean = [];
+  if(isLoaded){
+    itemsToClean = currentPlaylist.items.slice();
+  } else {
+    try{
+      const res = await window.storage.get('playlist:' + selectedId);
+      const pl = res ? JSON.parse(res.value) : null;
+      if(pl && pl.items) itemsToClean = pl.items;
+    }catch(e){}
   }
-  currentPlaylist = null;
+
+  playlistsIndex = playlistsIndex.filter(p => p.id !== selectedId);
+  await saveIndex();
+  await window.storage.delete('playlist:' + selectedId).catch(()=>{});
+  for(const item of itemsToClean){
+    if(item.hasSrcAudio) await window.storage.delete(audioKey(selectedId, item.id, 'src')).catch(()=>{});
+    if(item.hasTgtAudio) await window.storage.delete(audioKey(selectedId, item.id, 'tgt')).catch(()=>{});
+  }
+  if(isLoaded) currentPlaylist = null;
   renderPlaylistSelect();
 });
 
