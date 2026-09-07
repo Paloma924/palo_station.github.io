@@ -194,6 +194,10 @@ button:disabled{opacity:0.4;cursor:default;}
         <label for="playlistSelect">Lista</label>
         <select id="playlistSelect"></select>
       </div>
+      <div style="display:flex;gap:4px;align-items:flex-end;">
+        <button id="moveUpBtn" class="ghost" title="Subir esta lista">⬆️</button>
+        <button id="moveDownBtn" class="ghost" title="Bajar esta lista">⬇️</button>
+      </div>
       <button id="newListBtn">+ Nueva lista</button>
       <button id="renameListBtn" class="ghost">Renombrar lista</button>
       <button id="deleteListBtn" class="ghost">Eliminar lista</button>
@@ -549,6 +553,24 @@ async function saveIndex(){
   await window.storage.set('playlists-index', JSON.stringify(playlistsIndex));
 }
 
+// Si alguna lista de esta sección todavía no tiene un número de orden
+// (listas creadas antes de añadir el reordenamiento manual), le asigna uno
+// según su posición actual, para que el orden se mantenga estable.
+function ensureOrder(sectionLists){
+  let changed = false;
+  sectionLists.forEach((p, i) => {
+    if(typeof p.order !== 'number'){ p.order = i; changed = true; }
+  });
+  return changed;
+}
+
+function updateMoveButtonsState(sortedSectionLists){
+  const selectedId = el('playlistSelect').value;
+  const idx = sortedSectionLists.findIndex(p => p.id === selectedId);
+  el('moveUpBtn').disabled = idx <= 0;
+  el('moveDownBtn').disabled = idx === -1 || idx >= sortedSectionLists.length - 1;
+}
+
 function renderPlaylistSelect(){
   const sel = el('playlistSelect');
   sel.innerHTML = '';
@@ -561,9 +583,14 @@ function renderPlaylistSelect(){
     el('playerCard').style.display = 'none';
     el('listCard').style.display = 'none';
     currentPlaylist = null;
+    el('moveUpBtn').disabled = true;
+    el('moveDownBtn').disabled = true;
     return;
   }
   el('emptyState').style.display = 'none';
+  const changedOrder = ensureOrder(sectionLists);
+  if(changedOrder) saveIndex();
+  sectionLists.sort((a, b) => a.order - b.order);
   sectionLists.forEach(p => {
     const opt = document.createElement('option');
     opt.value = p.id;
@@ -576,7 +603,31 @@ function renderPlaylistSelect(){
   } else {
     sel.value = currentPlaylist.id;
   }
+  updateMoveButtonsState(sectionLists);
 }
+
+// Intercambia el número de orden de la lista seleccionada con el de su
+// vecina (arriba o abajo) dentro de la misma sección/categoría.
+async function moveSelectedList(direction){
+  const selectedId = el('playlistSelect').value;
+  if(!selectedId) return;
+  const sectionLists = playlistsIndex.filter(p => belongsToSection(p, currentSection, currentCategory));
+  ensureOrder(sectionLists);
+  sectionLists.sort((a, b) => a.order - b.order);
+  const idx = sectionLists.findIndex(p => p.id === selectedId);
+  const swapIdx = idx + direction;
+  if(idx === -1 || swapIdx < 0 || swapIdx >= sectionLists.length) return;
+  const a = sectionLists[idx];
+  const b = sectionLists[swapIdx];
+  const tmp = a.order;
+  a.order = b.order;
+  b.order = tmp;
+  await saveIndex();
+  renderPlaylistSelect();
+}
+
+el('moveUpBtn').addEventListener('click', () => moveSelectedList(-1));
+el('moveDownBtn').addEventListener('click', () => moveSelectedList(1));
 
 async function loadPlaylist(id){
   try{
@@ -627,7 +678,9 @@ el('createListBtn').addEventListener('click', async () => {
   const id = uid();
   const newPl = {id, name, source, target, category, pauseSeconds: 3, items: []};
   await window.storage.set('playlist:' + id, JSON.stringify(newPl));
-  playlistsIndex.push({id, name, source, target, category});
+  const siblingLists = playlistsIndex.filter(p => belongsToSection(p, currentSection, category));
+  const maxOrder = siblingLists.reduce((m, p) => Math.max(m, (typeof p.order === 'number' ? p.order : 0)), -1);
+  playlistsIndex.push({id, name, source, target, category, order: maxOrder + 1});
   await saveIndex();
   currentPlaylist = newPl;
   renderPlaylistSelect();
@@ -701,6 +754,10 @@ el('deleteListBtn').addEventListener('click', async () => {
 
 el('playlistSelect').addEventListener('change', e => {
   loadPlaylist(e.target.value);
+  const sectionLists = playlistsIndex.filter(p => belongsToSection(p, currentSection, currentCategory));
+  ensureOrder(sectionLists);
+  sectionLists.sort((a, b) => a.order - b.order);
+  updateMoveButtonsState(sectionLists);
 });
 
 function audioKey(playlistId, itemId, slot){
